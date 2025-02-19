@@ -152,7 +152,7 @@ const CalculatorSection = () => {
 
 	return (
 		<div className='bg-white p-6 container m-auto'>
-			<h2 className='text-xl font-bold mb-4'>
+			<h2 className='text-xl font-bold mb-4' id='calculator'>
 				Калькулятор таможенных платежей во Владивостоке
 			</h2>
 

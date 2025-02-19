@@ -1,3 +1,6 @@
+import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
+
 import {
 	HeroSection,
 	CalculatorSection,
@@ -7,14 +10,23 @@ import {
 } from '../components'
 
 const Home = () => {
+	const location = useLocation()
+
+	useEffect(() => {
+		if (location.hash === '#calculator') {
+			const calculatorElement = document.getElementById('calculator')
+			if (calculatorElement) {
+				calculatorElement.scrollIntoView({ behavior: 'smooth' })
+			}
+		}
+	}, [location])
+
 	return (
 		<div>
 			<HeroSection />
 			<AboutSection />
 			<AdvantagesSection />
-			<div id='calculator'>
-				<CalculatorSection />
-			</div>
+			<CalculatorSection />
 			<InstagramSection />
 		</div>
 	)

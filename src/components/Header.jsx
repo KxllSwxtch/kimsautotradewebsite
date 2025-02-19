@@ -1,23 +1,31 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const Header = () => {
 	const [menuOpen, setMenuOpen] = useState(false)
 	const [showHeader, setShowHeader] = useState(false)
+	const location = useLocation()
 
 	useEffect(() => {
-		const handleScroll = () => {
-			// Если прокручено более чем на 10 пикселей, показываем хедер
-			if (window.scrollY > 5) {
-				setShowHeader(true)
-			} else {
-				setShowHeader(false)
+		if (location.pathname === '/') {
+			const handleScroll = () => {
+				// Если прокручено более чем на 5 пикселей, показываем header, иначе скрываем
+				if (window.scrollY > 5) {
+					setShowHeader(true)
+				} else {
+					setShowHeader(false)
+				}
 			}
+			window.addEventListener('scroll', handleScroll)
+			// Выполняем начальную проверку
+			handleScroll()
+			return () => window.removeEventListener('scroll', handleScroll)
+		} else {
+			// На остальных страницах всегда показываем header
+			setShowHeader(true)
 		}
-		window.addEventListener('scroll', handleScroll)
-		return () => window.removeEventListener('scroll', handleScroll)
-	}, [])
+	}, [location.pathname])
 
 	const toggleMenu = () => setMenuOpen((prev) => !prev)
 
@@ -61,12 +69,13 @@ const Header = () => {
 							>
 								О компании
 							</Link>
-							<a
+							<Link
+								to='/#calculator'
+								onClick={() => setMenuOpen(false)} // если меню открыто, закрываем его
 								className='text-secondary-500 hover:text-accent-500 transition duration-300'
-								href='#calculator'
 							>
 								Калькулятор
-							</a>
+							</Link>
 							<Link
 								to='/catalog'
 								className='text-secondary-500 hover:text-accent-500 transition duration-300'
@@ -160,6 +169,13 @@ const Header = () => {
 								className='block text-secondary-500 text-2xl hover:text-accent-500 transition-colors duration-300'
 							>
 								О компании
+							</Link>
+							<Link
+								to='/#calculator'
+								onClick={() => setMenuOpen(false)} // если меню открыто, закрываем его
+								className='text-secondary-500 hover:text-accent-500 transition duration-300'
+							>
+								Калькулятор
 							</Link>
 							<Link
 								onClick={() => setMenuOpen(false)}
