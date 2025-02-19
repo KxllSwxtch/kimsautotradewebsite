@@ -6,6 +6,10 @@ import AdvantagesSection from './AdvantagesSection'
 import AboutSection from './AboutSection'
 import InstagramSection from './InstagramSection'
 import InstagramEmbedCustom from './InstagramEmbedCustom'
+import Catalog from './Catalog'
+import CarListItem from './CarListItem'
+import Loader from './Loader'
+import Message from './Message'
 
 export {
 	Header,
@@ -16,4 +20,8 @@ export {
 	AboutSection,
 	InstagramSection,
 	InstagramEmbedCustom,
+	Catalog,
+	CarListItem,
+	Loader,
+	Message,
 }
