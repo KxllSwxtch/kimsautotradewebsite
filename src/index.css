@@ -1,0 +1,17 @@
+@import 'tailwindcss';
+@import 'tailwindcss/utilities';
+
+/* 
+  Используем директиву @theme.
+  Каждая переменная — это околичное (OKLCH) значение цвета.
+  Название переменных делаем с суффиксом -500, чтобы 
+  совпадать с логикой классов bg-xxx-500 и text-xxx-500.
+*/
+@theme {
+	--color-primary-500: oklch(0 0 0); /* Чёрный   (#000000) */
+	--color-secondary-500: oklch(1 0 0); /* Белый    (#FFFFFF) */
+	--color-gray-light-500: oklch(0.96 0.02 235); /* Светлый  (#F3F4F6) */
+	--color-gray-dark-500: oklch(0.37 0.03 250); /* Тёмный   (#4B5563) */
+	--color-accent-500: oklch(0.8 0.2 85); /* Жёлтый   (#EAB308) */
+	--color-silver-500: oklch(0.67 0.02 265); /* Серебро  (#A8A8A8) */
+}
