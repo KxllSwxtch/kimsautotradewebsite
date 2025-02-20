@@ -14,6 +14,7 @@ import { translateCarName } from '../utils'
 import { carModelsTranslation } from '../translations'
 
 const translations = {
+	price: 'Цена в Корее (₩)',
 	연식: 'Год выпуска',
 	최초등록일: 'Дата первой регистрации',
 	연료: 'Тип топлива',
@@ -198,7 +199,7 @@ const CarDetails = () => {
 									<p className='mt-1 text-xl font-semibold text-gray-800'>
 										{translations[value] ||
 											carModelsTranslation[value] ||
-											value}
+											value.toLocaleString()}
 									</p>
 								</div>
 							))}
