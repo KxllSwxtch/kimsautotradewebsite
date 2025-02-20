@@ -4,6 +4,7 @@ import useKmOptions from './useKmOptions'
 import fuelOptions from './fuelOptions'
 import missionOptions from './missionOptions'
 import colorOptions from './colorOptions'
+import translateCarName from './translateCarName'
 
 export {
 	priceOptions,
@@ -12,4 +13,5 @@ export {
 	fuelOptions,
 	missionOptions,
 	colorOptions,
+	translateCarName,
 }

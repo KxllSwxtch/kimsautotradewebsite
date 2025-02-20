@@ -10,6 +10,8 @@ import Catalog from './Catalog'
 import CarListItem from './CarListItem'
 import Loader from './Loader'
 import Message from './Message'
+import NextArrow from './NextArrow'
+import PrevArrow from './PrevArrow'
 
 export {
 	Header,
@@ -24,4 +26,6 @@ export {
 	CarListItem,
 	Loader,
 	Message,
+	NextArrow,
+	PrevArrow,
 }
