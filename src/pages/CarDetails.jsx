@@ -49,6 +49,8 @@ const CarDetails = () => {
 	const [loading, setLoading] = useState(true)
 	const [images, setImages] = useState([])
 	const [carName, setCarName] = useState('')
+	const [calcResult, setCalcResult] = useState(null)
+	const [calcLoading, setCalcLoading] = useState(false)
 
 	useEffect(() => {
 		const fetchCarDetails = async () => {
@@ -80,6 +82,71 @@ const CarDetails = () => {
 		fetchCarDetails()
 		fetchCarImages()
 	}, [carId])
+
+	const calculateAge = (year, month) => {
+		const currentDate = new Date()
+		const carDate = new Date(year, month - 1, 1) // Указываем 1-е число месяца
+
+		// Вычисляем возраст в месяцах
+		const ageInMonths =
+			(currentDate.getFullYear() - carDate.getFullYear()) * 12 +
+			(currentDate.getMonth() - carDate.getMonth())
+
+		if (ageInMonths < 36) {
+			return '0-3'
+		} else if (ageInMonths < 60) {
+			return '3-5'
+		} else if (ageInMonths < 84) {
+			return '5-7'
+		} else {
+			return '7-0'
+		}
+	}
+
+	const handleCalcRussia = async () => {
+		setCalcLoading(true)
+
+		const fuelType = carData['연료']
+		const formattedFuelType =
+			fuelType === '가솔린' ? '1' : fuelType === '디젤' ? '2' : '3'
+
+		try {
+			// Здесь engineType, engineVolume и carPrice следует получить из carData или другого источника
+			const engineType = formattedFuelType
+			const engineVolume = 1.5 // Пример, литры
+			const carPrice = 25000000 // Пример цены в KRW (это нужно заменить на реальное значение)
+
+			// Здесь carYear и carMonth можно извлечь из carName или других данных; для примера установим фиксированные значения
+			const carYearValue = '2020' // Пример
+			const carMonthValue = '01' // Пример
+
+			const response = await axios.post(
+				'https://corsproxy.io/?key=28174bc7&url=https://calcus.ru/calculate/Customs',
+				new URLSearchParams({
+					owner: 1,
+					age: calculateAge(carYearValue, carMonthValue),
+					engine: engineType,
+					power: 1,
+					power_unit: 1,
+					value: engineVolume,
+					price: carPrice,
+					curr: 'KRW',
+				}).toString(),
+				{
+					withCredentials: false,
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+					},
+				},
+			)
+			setCalcResult(response.data)
+		} catch (error) {
+			console.error('Ошибка расчёта для России:', error)
+			setCalcResult({ error: 'Ошибка расчёта' })
+		} finally {
+			setCalcLoading(false)
+		}
+	}
 
 	if (loading) return <Loader />
 
@@ -140,6 +207,50 @@ const CarDetails = () => {
 				) : (
 					<p className='text-center text-gray-300'>Автомобиль не найден</p>
 				)}
+				<div className='mt-10 p-8 bg-gradient-to-r from-green-50 to-green-100 rounded-xl shadow-lg flex flex-col items-center space-y-4'>
+					<h3 className='text-2xl font-bold text-green-700'>
+						Расчёт под ключ до стран СНГ
+					</h3>
+					<div className='flex gap-4'>
+						<button
+							onClick={handleCalcRussia}
+							className='px-6 py-3 rounded-full bg-green-600 text-white font-semibold transition hover:bg-green-700'
+						>
+							🇷🇺 Россия
+						</button>
+						<button
+							disabled
+							className='px-6 py-3 rounded-full bg-gray-300 text-gray-600 font-semibold cursor-not-allowed'
+						>
+							🇰🇿 Казахстан (в разработке)
+						</button>
+					</div>
+					{calcLoading && <p className='text-green-700'>Идет расчёт...</p>}
+					{calcResult && (
+						<div className='mt-4 p-4 bg-white rounded shadow w-full'>
+							<pre className='text-sm text-gray-800'>
+								{calcResult && (
+									<div>
+										<p>
+											Таможенная пошлина: <b>{calcResult['tax']} ₽</b>
+										</p>
+										<p>
+											Таможенный сбор: <b>{calcResult['sbor']} ₽</b>
+										</p>
+										<p>
+											Утильсбор: <b>{calcResult['util']} ₽</b>
+										</p>
+										<br />
+										<p className='w-full break-words whitespace-break-spaces'>
+											Итого (Стоимость авто + расходы во Владивостоке): <br />
+											<b>{calcResult['total2']} ₽</b>
+										</p>
+									</div>
+								)}
+							</pre>
+						</div>
+					)}
+				</div>
 				<div className='mt-10 p-8 bg-gradient-to-r from-blue-100 to-blue-50 rounded-xl shadow-lg flex flex-col items-center space-y-4'>
 					<h3 className='text-2xl font-bold text-blue-600'>
 						Контакты для связи
