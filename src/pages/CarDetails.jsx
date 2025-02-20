@@ -115,7 +115,7 @@ const CarDetails = () => {
 			// Здесь engineType, engineVolume и carPrice следует получить из carData или другого источника
 			const engineType = formattedFuelType
 			const engineVolume = 1.5 // Пример, литры
-			const carPrice = 25000000 // Пример цены в KRW (это нужно заменить на реальное значение)
+			const carPrice = carData?.price
 
 			// Здесь carYear и carMonth можно извлечь из carName или других данных; для примера установим фиксированные значения
 			const carYearValue = '2020' // Пример
