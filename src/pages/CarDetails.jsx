@@ -80,7 +80,7 @@ const CarDetails = () => {
 	return (
 		<div className='container mx-auto p-4 max-w-6xl mt-30'>
 			{/* Основной контейнер с фото слева и информацией справа */}
-			<div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
+			<div className='grid grid-cols-1 md:grid-cols-2 md:gap-10'>
 				{/* Фотографии автомобиля */}
 				<div className='overflow-hidden'>
 					{images.length > 0 ? (
@@ -89,12 +89,14 @@ const CarDetails = () => {
 						<p className='text-center text-gray-500'>Фотографии отсутствуют</p>
 					)}
 
-					<Calculator />
+					<div className='hidden md:block'>
+						<Calculator />
+					</div>
 				</div>
 
 				{/* Информация об автомобиле */}
 				<div className='bg-white rounded-lg shadow-lg p-8'>
-					<h2 className='text-4xl font-bold mb-6 text-gray-800 text-center'>
+					<h2 className='text-2xl md:text-4xl font-bold mb-6 text-gray-800 text-center'>
 						{carName ? translateCarName(carName) : 'Модель не указана'}
 					</h2>
 
@@ -133,8 +135,12 @@ const CarDetails = () => {
 				</div>
 			</div>
 
+			<div className='md:hidden mt-10'>
+				<Calculator />
+			</div>
+
 			<div className='mt-10 p-8 bg-white border border-gray-100'>
-				<h3 className='text-4xl font-bold text-gray-800 mb-8 text-center'>
+				<h3 className='text-2xl md:text-4xl font-bold text-gray-800 mb-8 text-center'>
 					Контакты для связи
 				</h3>
 				<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
