@@ -1,12 +1,52 @@
+import { FaInstagram, FaYoutube } from 'react-icons/fa'
+import { SiTiktok } from 'react-icons/si'
+
 const Footer = () => {
 	return (
-		<footer className='bg-primary-500 text-secondary-500 py-8'>
+		<footer className='bg-primary-500 text-secondary-500 py-10'>
 			<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
 				<div className='flex flex-col md:flex-row justify-between items-center'>
-					{/* Блок контактов */}
-					<div className='mb-4 md:mb-0 text-center md:text-left'>
-						<h2 className='text-lg font-bold'>Контакты</h2>
-						<ul className='mt-2 space-y-2'>
+					{/* Левый блок: Логотип, описание и соцсети */}
+					<div className='mb-6 md:mb-0 text-center md:text-left'>
+						<img
+							src='https://res.cloudinary.com/pomegranitedesign/image/upload/v1739951461/kimsautotrade/logo.jpg'
+							alt="Kim's Auto Trade"
+							className='w-40 mx-auto md:mx-0'
+						/>
+						<p className='mt-2 text-sm'>
+							Экспорт авто под ключ для клиентов и дилеров из стран СНГ
+						</p>
+						<div className='flex justify-center md:justify-start gap-4 mt-4'>
+							<a
+								href='https://www.instagram.com/kims_auto_trade_official/'
+								target='_blank'
+								rel='noopener noreferrer'
+								className='text-2xl hover:text-accent-500 transition-colors duration-300'
+							>
+								<FaInstagram />
+							</a>
+							<a
+								href='https://www.tiktok.com/@kims_auto_trade'
+								target='_blank'
+								rel='noopener noreferrer'
+								className='text-2xl hover:text-accent-500 transition-colors duration-300'
+							>
+								<SiTiktok />
+							</a>
+							<a
+								href='https://www.youtube.com/@Ramis_Safin97'
+								target='_blank'
+								rel='noopener noreferrer'
+								className='text-2xl hover:text-accent-500 transition-colors duration-300'
+							>
+								<FaYoutube />
+							</a>
+						</div>
+					</div>
+					{/* Правый блок: Контакты и копирайт */}
+					<div className='text-center md:text-right'>
+						<h3 className='text-lg font-semibold'>Контакты</h3>
+						<ul className='mt-2 space-y-2 text-sm'>
 							<li className='transition-colors duration-300 hover:text-accent-500'>
 								Рамис:{' '}
 								<a href='tel:+821080296232' className='underline'>
@@ -20,13 +60,24 @@ const Footer = () => {
 								</a>
 							</li>
 						</ul>
-					</div>
-					{/* Авторские права */}
-					<div className='text-center md:text-right'>
-						<p className='text-sm'>
-							© {new Date().getFullYear()} Kim's Auto Trade. Все права защищены.
+						<p className='mt-4 text-xs'>
+							© {new Date().getFullYear()} Kim'sAutoTrade. Все права защищены.
 						</p>
 					</div>
+				</div>
+				{/* Дополнительная информация */}
+				<div className='mt-8 border-t border-gray-700 pt-4 text-center text-xs'>
+					<p>
+						Разработка:{' '}
+						<a
+							href='https://killswitchdev.netlify.app/'
+							target='_blank'
+							rel='noopener noreferrer'
+							className='underline hover:text-accent-500 transition-colors duration-300'
+						>
+							killswitchdev
+						</a>
+					</p>
 				</div>
 			</div>
 		</footer>

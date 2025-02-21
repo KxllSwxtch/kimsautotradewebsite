@@ -12,6 +12,8 @@ import Loader from './Loader'
 import Message from './Message'
 import NextArrow from './NextArrow'
 import PrevArrow from './PrevArrow'
+import Calculator from './Calculator'
+import ImageSlider from './ImageSlider'
 
 export {
 	Header,
@@ -28,4 +30,6 @@ export {
 	Message,
 	NextArrow,
 	PrevArrow,
+	Calculator,
+	ImageSlider,
 }

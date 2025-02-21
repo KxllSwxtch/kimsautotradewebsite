@@ -1,17 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
-import Slider from 'react-slick'
-import { FaPhoneAlt } from 'react-icons/fa'
-import { FaInstagram, FaYoutube } from 'react-icons/fa'
-import { SiTiktok } from 'react-icons/si'
 
-import 'slick-carousel/slick/slick.css'
-import 'slick-carousel/slick/slick-theme.css'
-
-import { Loader, NextArrow, PrevArrow } from '../components'
 import { translateCarName } from '../utils'
 import { carModelsTranslation } from '../translations'
+import { ImageSlider, Loader, Calculator } from '../components'
 
 const translations = {
 	price: 'Цена в Корее (₩)',
@@ -50,8 +43,6 @@ const CarDetails = () => {
 	const [loading, setLoading] = useState(true)
 	const [images, setImages] = useState([])
 	const [carName, setCarName] = useState('')
-	const [calcResult, setCalcResult] = useState(null)
-	const [calcLoading, setCalcLoading] = useState(false)
 
 	useEffect(() => {
 		const fetchCarDetails = async () => {
@@ -84,215 +75,88 @@ const CarDetails = () => {
 		fetchCarImages()
 	}, [carId])
 
-	const calculateAge = (year, month) => {
-		const currentDate = new Date()
-		const carDate = new Date(year, month - 1, 1) // Указываем 1-е число месяца
-
-		// Вычисляем возраст в месяцах
-		const ageInMonths =
-			(currentDate.getFullYear() - carDate.getFullYear()) * 12 +
-			(currentDate.getMonth() - carDate.getMonth())
-
-		if (ageInMonths < 36) {
-			return '0-3'
-		} else if (ageInMonths < 60) {
-			return '3-5'
-		} else if (ageInMonths < 84) {
-			return '5-7'
-		} else {
-			return '7-0'
-		}
-	}
-
-	const handleCalcRussia = async () => {
-		setCalcLoading(true)
-
-		const fuelType = carData['연료']
-		const formattedFuelType =
-			fuelType === '가솔린' ? '1' : fuelType === '디젤' ? '2' : '3'
-
-		try {
-			// Здесь engineType, engineVolume и carPrice следует получить из carData или другого источника
-			const engineType = formattedFuelType
-			const engineVolume = 1.5 // Пример, литры
-			const carPrice = carData?.price
-
-			// Здесь carYear и carMonth можно извлечь из carName или других данных; для примера установим фиксированные значения
-			const carYearValue = '2020' // Пример
-			const carMonthValue = '01' // Пример
-
-			const response = await axios.post(
-				'https://corsproxy.io/?key=28174bc7&url=https://calcus.ru/calculate/Customs',
-				new URLSearchParams({
-					owner: 1,
-					age: calculateAge(carYearValue, carMonthValue),
-					engine: engineType,
-					power: 1,
-					power_unit: 1,
-					value: engineVolume,
-					price: carPrice,
-					curr: 'KRW',
-				}).toString(),
-				{
-					withCredentials: false,
-					headers: {
-						'Content-Type': 'application/x-www-form-urlencoded',
-					},
-				},
-			)
-			setCalcResult(response.data)
-		} catch (error) {
-			console.error('Ошибка расчёта для России:', error)
-			setCalcResult({ error: 'Ошибка расчёта' })
-		} finally {
-			setCalcLoading(false)
-		}
-	}
-
 	if (loading) return <Loader />
 
-	const sliderSettings = {
-		dots: true, // Показать индикаторы (точки)
-		infinite: true, // Зацикленный слайдер
-		speed: 500, // Скорость анимации
-		slidesToShow: 1, // Показывать по одному слайду
-		slidesToScroll: 1,
-		adaptiveHeight: true, // Автоматическая подгонка высоты
-		autoplay: true, // Автоматическая прокрутка
-		autoplaySpeed: 4000, // Интервал между слайдами (4 сек)
-		nextArrow: <NextArrow />, // Пользовательская стрелка "вперед"
-		prevArrow: <PrevArrow />, // Пользовательская стрелка "назад"
-	}
-
 	return (
-		<div className='min-h-screen py-8 px-4 mt-20'>
-			<div className='container mx-auto max-w-4xl'>
-				{images.length > 0 && (
-					<div className='mb-8'>
-						<Slider {...sliderSettings} className='rounded-lg overflow-hidden'>
-							{images.map((img, index) => (
-								<div key={index} className='flex justify-center'>
-									<img
-										src={img.full}
-										alt={`Car ${index}`}
-										className='w-full max-h-96 object-contain rounded-lg'
-									/>
-								</div>
-							))}
-						</Slider>
-					</div>
-				)}
-				{carData ? (
-					<div className='bg-white shadow-2xl rounded-xl p-10'>
-						<h2 className='text-4xl font-bold mb-8 text-center text-blue-700'>
-							{carName ? translateCarName(carName) : 'Модель не указана'}
-						</h2>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
-							{Object.entries(carData).map(([key, value], index) => (
-								<div
-									key={index}
-									className='bg-white p-6 rounded-lg border border-blue-100 hover:shadow-xl transition-shadow duration-300'
-								>
-									<p className='text-sm font-medium text-blue-600'>
-										{translations[key] || key}:
-									</p>
-									<p className='mt-1 text-xl font-semibold text-gray-800'>
-										{translations[value] ||
-											carModelsTranslation[value] ||
-											value.toLocaleString()}
-									</p>
-								</div>
-							))}
-						</div>
-					</div>
-				) : (
-					<p className='text-center text-gray-300'>Автомобиль не найден</p>
-				)}
-				<div className='mt-10 p-8 bg-gradient-to-r from-green-50 to-green-100 rounded-xl shadow-lg flex flex-col items-center space-y-4'>
-					<h3 className='text-2xl font-bold text-green-700'>
-						Расчёт под ключ до стран СНГ
-					</h3>
-					<div className='flex gap-4'>
-						<button
-							onClick={handleCalcRussia}
-							className='px-6 py-3 rounded-full bg-green-600 text-white font-semibold transition hover:bg-green-700'
-						>
-							🇷🇺 Россия
-						</button>
-						<button
-							disabled
-							className='px-6 py-3 rounded-full bg-gray-300 text-gray-600 font-semibold cursor-not-allowed'
-						>
-							🇰🇿 Казахстан (в разработке)
-						</button>
-					</div>
-					{calcLoading && <p className='text-green-700'>Идет расчёт...</p>}
-					{calcResult && (
-						<div className='mt-4 p-4 bg-white rounded shadow w-full'>
-							<pre className='text-sm text-gray-800'>
-								{calcResult && (
-									<div>
-										<p>
-											Таможенная пошлина: <b>{calcResult['tax']} ₽</b>
-										</p>
-										<p>
-											Таможенный сбор: <b>{calcResult['sbor']} ₽</b>
-										</p>
-										<p>
-											Утильсбор: <b>{calcResult['util']} ₽</b>
-										</p>
-										<br />
-										<p className='w-full break-words whitespace-break-spaces'>
-											Итого (Стоимость авто + расходы во Владивостоке): <br />
-											<b>{calcResult['total2']} ₽</b>
-										</p>
-									</div>
-								)}
-							</pre>
-						</div>
+		<div className='container mx-auto p-4 max-w-6xl mt-30'>
+			{/* Основной контейнер с фото слева и информацией справа */}
+			<div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
+				{/* Фотографии автомобиля */}
+				<div className='overflow-hidden'>
+					{images.length > 0 ? (
+						<ImageSlider images={images} />
+					) : (
+						<p className='text-center text-gray-500'>Фотографии отсутствуют</p>
 					)}
+
+					<Calculator />
 				</div>
-				<div className='mt-10 p-8 bg-gradient-to-r from-blue-100 to-blue-50 rounded-xl shadow-lg flex flex-col items-center space-y-4'>
-					<h3 className='text-2xl font-bold text-blue-600'>
-						Контакты для связи
-					</h3>
-					<div className='flex items-center gap-3'>
-						<FaPhoneAlt className='text-blue-500' />
-						<p className='text-lg text-blue-700'>
-							Артём: <span className='font-semibold'>+82 10-8282-8062</span>
-						</p>
+
+				{/* Информация об автомобиле */}
+				<div className='bg-white rounded-lg shadow-lg p-8'>
+					<h2 className='text-4xl font-bold mb-6 text-gray-800 text-center'>
+						{carName ? translateCarName(carName) : 'Модель не указана'}
+					</h2>
+
+					{/* Компактное расположение данных в табличном стиле */}
+					<div className='border-t border-gray-200'>
+						{carData ? (
+							<table className='w-full text-left mt-4'>
+								<tbody>
+									{Object.entries(carData).map(([key, value], index) => (
+										<tr
+											key={index}
+											className={`border-b border-gray-100 transition duration-300 hover:bg-gray-50 ${
+												index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+											}`}
+										>
+											{/* Название характеристики */}
+											<td className='py-3 px-2 text-sm font-medium text-gray-600 w-1/3 md:w-1/4'>
+												{translations[key] || key}
+											</td>
+											{/* Значение характеристики */}
+											<td className='py-3 px-2 text-sm text-gray-800 text-right'>
+												<b>
+													{translations[value] ||
+														carModelsTranslation[value] ||
+														value.toLocaleString()}
+												</b>
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						) : (
+							<p className='text-center text-gray-500'>Автомобиль не найден</p>
+						)}
 					</div>
-					<div className='flex items-center gap-3'>
-						<FaPhoneAlt className='text-blue-500' />
-						<p className='text-lg text-blue-700'>
-							Рамис: <span className='font-semibold'>+82 10-8029-6232</span>
-						</p>
+				</div>
+			</div>
+
+			<div className='mt-10 p-8 bg-white border border-gray-100'>
+				<h3 className='text-4xl font-bold text-gray-800 mb-8 text-center'>
+					Контакты для связи
+				</h3>
+				<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+					{/* Виталий */}
+					<div className='p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200'>
+						<p className='text-lg font-semibold text-gray-700 mb-1'>Артём</p>
+						<a
+							href='tel:+821093441782'
+							className='block text-xl text-red-600 hover:text-red-500 transition duration-300'
+						>
+							+82 10-8282-8062
+						</a>
 					</div>
-					{/* Блок соцсетей */}
-					<div className='flex items-center gap-6 mt-4'>
+
+					{/* Ким Евгений */}
+					<div className='p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200'>
+						<p className='text-lg font-semibold text-gray-700 mb-1'>Рамис</p>
 						<a
-							href='https://www.instagram.com/kims_auto_trade_official/'
-							target='_blank'
-							rel='noopener noreferrer'
-							className='text-3xl text-pink-500 hover:text-pink-600 transition-colors duration-300'
+							href='tel:+821042252627'
+							className='block text-xl text-red-600 hover:text-red-500 transition duration-300'
 						>
-							<FaInstagram />
-						</a>
-						<a
-							href='https://www.tiktok.com/@kims_auto_trade'
-							target='_blank'
-							rel='noopener noreferrer'
-							className='text-3xl text-black hover:text-gray-800 transition-colors duration-300'
-						>
-							<SiTiktok />
-						</a>
-						<a
-							href='https://www.youtube.com/@Ramis_Safin97'
-							target='_blank'
-							rel='noopener noreferrer'
-							className='text-3xl text-red-600 hover:text-red-700 transition-colors duration-300'
-						>
-							<FaYoutube />
+							+82 10-8029-6232
 						</a>
 					</div>
 				</div>

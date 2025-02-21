@@ -23,9 +23,9 @@ const HeroSection = () => {
 
 			{/* Основной контент */}
 			<div className='relative z-10 max-w-7xl mx-auto px-4 text-center'>
-				<h1 className='text-4xl md:text-6xl font-bold mb-4'>
-					Экспорт авто под ключ
-				</h1>
+				<h2 className='text-4xl font-bold mb-8 text-center text-white'>
+					Продажа авто на внутренний рынок и экспорт под ключ
+				</h2>
 				<p className='text-lg md:text-xl mb-6'>
 					Надежный партнер для клиентов и дилеров из стран СНГ
 				</p>
