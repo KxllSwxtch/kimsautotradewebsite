@@ -409,18 +409,20 @@ const Catalog = () => {
 									}}
 								>
 									<option value='' className='text-gray-500'>
-										Выберите производителя
+										Марка
 									</option>
-									{makerList.map((maker) => (
-										<option
-											key={maker.MAKER_NO}
-											value={maker.MAKER_NO}
-											className='text-black'
-										>
-											{carBrandsTranslation[maker.MAKER_NAME] ||
-												maker.MAKER_NAME}
-										</option>
-									))}
+									{makerList
+										?.sort((a, b) => (a.MAKER_NAME > b.MAKER_NAME ? -1 : 1))
+										.map((maker) => (
+											<option
+												key={maker.MAKER_NO}
+												value={maker.MAKER_NO}
+												className='text-black'
+											>
+												{carBrandsTranslation[maker.MAKER_NAME] ||
+													maker.MAKER_NAME}
+											</option>
+										))}
 								</select>
 							</div>
 
@@ -446,7 +448,7 @@ const Catalog = () => {
 									}}
 								>
 									<option value='' className='text-gray-400'>
-										Выберите модель
+										Модель
 									</option>
 									{modelList
 										.sort((a, b) => (a.MODEL_NAME > b.MODEL_NAME ? 1 : -1))
@@ -485,7 +487,7 @@ const Catalog = () => {
 									}}
 								>
 									<option value='' className='text-gray-400'>
-										Выберите подробную модель
+										Поколение
 									</option>
 									{detailModelList.map((dmodel) => (
 										<option

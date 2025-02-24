@@ -1,4 +1,6 @@
 const carModelsTranslation = {
+	노아: 'Noir',
+	가이아: 'Gaia',
 	그랜저: 'Grandeur',
 	쏘나타: 'Sonata',
 	아반떼: 'Avante (Elantra)',
