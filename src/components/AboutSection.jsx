@@ -1,56 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 
 const AboutSection = () => {
-	const videoRef = useRef(null)
-	const [videoError, setVideoError] = useState(false)
-
-	useEffect(() => {
-		const videoElement = videoRef.current
-		if (!videoElement) return
-
-		const observerOptions = {
-			threshold: 0.5, // 50% видимости
-		}
-
-		const observerCallback = (entries) => {
-			entries.forEach((entry) => {
-				if (entry.isIntersecting) {
-					videoElement
-						.play()
-						.then(() => {
-							setVideoError(false)
-						})
-						.catch((err) => {
-							console.error('Ошибка запуска видео:', err)
-							setVideoError(true)
-						})
-				} else {
-					videoElement.pause()
-				}
-			})
-		}
-
-		const observer = new IntersectionObserver(observerCallback, observerOptions)
-		observer.observe(videoElement)
-
-		return () => {
-			observer.unobserve(videoElement)
-		}
-	}, [])
-
-	const handlePlayClick = () => {
-		const videoElement = videoRef.current
-		videoElement
-			.play()
-			.then(() => {
-				setVideoError(false)
-			})
-			.catch((err) => {
-				console.error('Ошибка при ручном запуске видео:', err)
-			})
-	}
-
 	return (
 		<section className='py-16 bg-grayLight-500'>
 			<div className='max-w-7xl mx-auto px-4'>
@@ -86,24 +36,12 @@ const AboutSection = () => {
 							этапе сотрудничества.
 						</p>
 					</div>
-					<div className='relative flex justify-center'>
-						<video
-							ref={videoRef}
-							src='https://res.cloudinary.com/pomegranitedesign/video/upload/v1740115681/kimsautotrade/aboutvideo.mp4'
+					<div className='flex justify-center'>
+						<img
+							src='https://res.cloudinary.com/pomegranitedesign/image/upload/v1739951461/kimsautotrade/logo.jpg'
+							alt="Kim's Auto Trade"
 							className='w-80 h-auto rounded-lg shadow-2xl'
-							loop
-							muted
-							playsInline
-							controls
 						/>
-						{videoError && (
-							<button
-								onClick={handlePlayClick}
-								className='absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white text-xl font-bold rounded-lg'
-							>
-								Play Video
-							</button>
-						)}
 					</div>
 				</motion.div>
 			</div>

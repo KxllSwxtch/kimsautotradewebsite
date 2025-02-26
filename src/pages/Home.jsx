@@ -6,7 +6,9 @@ import {
 	CalculatorSection,
 	AdvantagesSection,
 	AboutSection,
+	HowToChooseCarSection,
 	InstagramSection,
+	HowToBuySection,
 } from '../components'
 
 const Home = () => {
@@ -25,9 +27,10 @@ const Home = () => {
 		<div>
 			<HeroSection />
 			<AboutSection />
+			<HowToChooseCarSection />
 			<AdvantagesSection />
-			<CalculatorSection />
-			<InstagramSection />
+			<HowToBuySection />
+			{/* <InstagramSection /> */}
 		</div>
 	)
 }

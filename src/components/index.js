@@ -14,6 +14,8 @@ import NextArrow from './NextArrow'
 import PrevArrow from './PrevArrow'
 import Calculator from './Calculator'
 import ImageSlider from './ImageSlider'
+import HowToChooseCarSection from './HowToChooseCarSection'
+import HowToBuySection from './HowToBuySection'
 
 export {
 	Header,
@@ -32,4 +34,6 @@ export {
 	PrevArrow,
 	Calculator,
 	ImageSlider,
+	HowToChooseCarSection,
+	HowToBuySection,
 }

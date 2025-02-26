@@ -1,64 +1,56 @@
+import { BsCheckCircle } from 'react-icons/bs'
 import { Link } from 'react-router-dom'
-import { FaWhatsapp } from 'react-icons/fa'
 
 const HeroSection = () => {
 	return (
-		<section className='relative min-h-screen flex items-center justify-center text-secondary-500'>
-			{/* Фоновое видео */}
-			<video
-				autoPlay
-				loop
-				muted
-				playsInline
-				className='absolute inset-0 w-full h-full object-cover'
-			>
-				<source
-					src='https://res.cloudinary.com/pomegranitedesign/video/upload/v1739957360/kimsautotrade/bg-video.mp4'
-					type='video/mp4'
-				/>
-			</video>
+		<section className='bg-[#F7F8FA] py-16 mt-5 md:mt-20'>
+			<div className='max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center'>
+				{/* Левая колонка: Заголовок, список и кнопка */}
+				<div className='md:w-1/2 space-y-6 md:pr-8'>
+					<h1 className='text-4xl md:text-5xl font-bold text-gray-900 leading-tight'>
+						Продаем авто в&nbsp;
+						<span className='text-red-600'>Южной Корее</span>
+						<br />и экспортируем в РФ за 14 дней
+					</h1>
+					<ul className='space-y-2 text-gray-700 text-lg'>
+						<li className='flex items-center gap-2'>
+							<BsCheckCircle className='text-red-600' />
+							Полное сопровождение
+						</li>
+						<li className='flex items-center gap-2'>
+							<BsCheckCircle className='text-red-600' />
+							Никаких скрытых платежей
+						</li>
+						<li className='flex items-center gap-2'>
+							<BsCheckCircle className='text-red-600' />
+							Помощь с логистикой и растаможкой в РФ
+						</li>
+					</ul>
 
-			{/* Затемняющий оверлей */}
-			<div className='absolute inset-0 bg-black opacity-50'></div>
-
-			{/* Основной контент */}
-			<div className='relative z-10 max-w-7xl mx-auto px-4 text-center'>
-				<h2 className='text-4xl font-bold mb-8 text-center text-white'>
-					Продажа авто на внутренний рынок и экспорт под ключ
-				</h2>
-				<p className='text-lg md:text-xl mb-6'>
-					Надежный партнер для клиентов и дилеров из стран СНГ
-				</p>
-
-				{/* Контакты через WhatsApp */}
-				<div className='mb-6 flex flex-col md:flex-row items-center justify-center gap-4'>
-					<a
-						href='https://wa.me/821080296232'
-						target='_blank'
-						rel='noopener noreferrer'
-						className='flex items-center text-sm md:text-base underline hover:text-accent-500 transition-colors'
-					>
-						<FaWhatsapp className='w-5 h-5 mr-2' />
-						Рамис: +82 10-8029-6232
-					</a>
-					<a
-						href='https://wa.me/821082828062'
-						target='_blank'
-						rel='noopener noreferrer'
-						className='flex items-center text-sm md:text-base underline hover:text-accent-500 transition-colors'
-					>
-						<FaWhatsapp className='w-5 h-5 mr-2' />
-						Артём: +82 10-8282-8062
-					</a>
+					<div className='flex flex-col justify-center md:block'>
+						<Link
+							to='/catalog'
+							className='text-center md:mr-5 mb-5 inline-block bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-full transition duration-300'
+						>
+							Купить в Корее
+						</Link>
+						<Link
+							to='/export-catalog'
+							className='text-center inline-block bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-full transition duration-300'
+						>
+							Заказать из Кореи
+						</Link>
+					</div>
 				</div>
 
-				{/* Кнопка "Смотреть каталог" */}
-				<Link
-					to='/catalog'
-					className='bg-accent-500 text-primary-500 px-6 py-3 rounded-md transition hover:bg-accent-600 inline-block'
-				>
-					Смотреть каталог
-				</Link>
+				{/* Правая колонка: Картинка автомобилей */}
+				<div className='md:w-1/2 mt-8 md:mt-0'>
+					<img
+						src='https://res.cloudinary.com/pomegranitedesign/image/upload/v1740536288/kimsautotrade/heroimage.png'
+						alt='Cars from Korea'
+						className='w-full h-auto object-contain'
+					/>
+				</div>
 			</div>
 		</section>
 	)

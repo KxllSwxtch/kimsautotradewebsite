@@ -361,7 +361,7 @@ const Catalog = () => {
 	}
 
 	return (
-		<div className='p-4 mt-24  text-secondary-500 min-h-screen'>
+		<div className='p-4 mt-20 md:mt-30  text-secondary-500 min-h-screen'>
 			{/* Фильтры */}
 			<>
 				{/* Кнопки для выбора страны */}
