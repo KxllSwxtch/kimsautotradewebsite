@@ -67,7 +67,7 @@ const Header = () => {
 						</Link>
 					</nav>
 					{/* Иконка для мобильного меню */}
-					<div className='md:hidden'>
+					<div className='md:hidden leading-0'>
 						<button onClick={toggleMenu} className='text-[#ffffff]'>
 							{menuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
 						</button>
@@ -84,19 +84,19 @@ const Header = () => {
 							to='/catalog'
 							className='transition-colors hover:text-[#ff4c4c]'
 						>
-							Каталог
+							Каталог авто в Корее
+						</Link>
+						<Link
+							to='/export-catalog'
+							className='transition-colors hover:text-[#ff4c4c]'
+						>
+							Каталог авто на заказ из Кореи
 						</Link>
 						<Link
 							to='/calculator'
 							className='transition-colors hover:text-[#ff4c4c]'
 						>
 							Калькулятор стоимости
-						</Link>
-						<Link
-							to='/vin-check'
-							className='transition-colors hover:text-[#ff4c4c]'
-						>
-							Проверка по VIN-номеру
 						</Link>
 					</nav>
 					{/* Номера телефонов */}
@@ -202,18 +202,18 @@ const Header = () => {
 							Каталог
 						</Link>
 						<Link
+							to='/export-catalog'
+							onClick={toggleMenu}
+							className='text-xl font-semibold hover:text-[#ff4c4c] transition-colors duration-300'
+						>
+							Каталог авто на заказ из Кореи
+						</Link>
+						<Link
 							to='/calculator'
 							onClick={toggleMenu}
 							className='text-xl font-semibold hover:text-[#ff4c4c] transition-colors duration-300'
 						>
 							Калькулятор стоимости
-						</Link>
-						<Link
-							to='/vin-check'
-							onClick={toggleMenu}
-							className='text-xl font-semibold hover:text-[#ff4c4c] transition-colors duration-300'
-						>
-							Проверка по VIN-номеру
 						</Link>
 					</nav>
 

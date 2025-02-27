@@ -16,6 +16,7 @@ import Calculator from './Calculator'
 import ImageSlider from './ImageSlider'
 import HowToChooseCarSection from './HowToChooseCarSection'
 import HowToBuySection from './HowToBuySection'
+import CarCard from './CarCard'
 
 export {
 	Header,
@@ -36,4 +37,5 @@ export {
 	ImageSlider,
 	HowToChooseCarSection,
 	HowToBuySection,
+	CarCard,
 }
