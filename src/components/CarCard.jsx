@@ -22,43 +22,52 @@ const CarCard = ({ car }) => {
 	const firstImage = getFirstImage(car.IMAGES)
 	return (
 		<motion.div
-			className='bg-white rounded-lg shadow-lg overflow-hidden mx-4'
+			className='p-4 rounded-[10px] bg-white shadow-md flex flex-col justify-between gap-5 transition-all duration-300 hover:shadow-lg'
 			initial={{ opacity: 0, y: 30 }}
 			whileInView={{ opacity: 1, y: 0 }}
 			viewport={{ once: true }}
 			transition={{ duration: 0.5 }}
 		>
 			{/* Изображение автомобиля */}
-			<img
-				src={firstImage}
-				alt={car.MODEL_NAME}
-				className='w-full h-48 object-cover'
-			/>
+			<div className='aspect-[16/9] rounded-[5px] overflow-hidden relative'>
+				<img
+					src={firstImage}
+					alt={car.MODEL_NAME}
+					className='absolute left-0 top-0 w-full h-full object-cover'
+				/>
+			</div>
 
 			{/* Информация об автомобиле */}
-			<div className='p-4'>
-				<h3 className='text-lg font-semibold text-gray-800'>
+			<div className='px-2'>
+				<h3 className='text-xl font-bold text-gray-800 mb-2 text-center'>
 					{car.MARKA_NAME} {car.MODEL_NAME}
 				</h3>
-				<p className='text-gray-600'>Дата регистрации: {car.MONTH}</p>
-				<p className='text-gray-500'>
-					Объём двигателя: {car.ENG_V.toLocaleString()} cc
-				</p>
-				<p className='text-gray-500'>Пробег: {formatMileage(car.MILEAGE)}</p>
-				<p className='text-gray-800 font-semibold text-lg'>
-					Цена в Корее: {formatPrice(car.FINISH)}
+				<div className='flex justify-between text-gray-500 text-sm border-b border-dotted border-gray-300 pb-1 mb-2'>
+					<span>Год</span>
+					<span>{car.MONTH} г.</span>
+				</div>
+				<div className='flex justify-between text-gray-500 text-sm border-b border-dotted border-gray-300 pb-1 mb-2'>
+					<span>Пробег</span>
+					<span>{formatMileage(car.MILEAGE)}</span>
+				</div>
+				<div className='flex justify-between text-gray-500 text-sm border-b border-dotted border-gray-300 pb-1 mb-2'>
+					<span>Объём</span>
+					<span>{car.ENG_V.toLocaleString()} см³</span>
+				</div>
+				<p className='text-black font-bold text-xl text-center mt-5'>
+					{formatPrice(car.FINISH)}
 				</p>
 			</div>
 
 			{/* Кнопка "Подробнее" */}
-			<div className='p-4 bg-gray-100 text-center'>
+			<div className='p-4 text-center'>
 				<a
 					href={`https://www.encar.com/dc/dc_cardetailview.do?carid=${car.LOT}`}
 					target='_blank'
 					rel='noopener noreferrer'
-					className='inline-block bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-full transition duration-300'
+					className='inline-block bg-black hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-sm transition duration-300'
 				>
-					Подробнее
+					Узнать подробнее
 				</a>
 			</div>
 		</motion.div>
