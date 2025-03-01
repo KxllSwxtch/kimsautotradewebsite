@@ -7,10 +7,12 @@ const HeroSection = () => {
 			<div className='max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center'>
 				{/* Левая колонка: Заголовок, список и кнопка */}
 				<div className='md:w-1/2 space-y-6 md:pr-8'>
-					<h1 className='text-4xl md:text-5xl font-bold text-gray-900 leading-tight'>
-						Продаем авто в&nbsp;
-						<span className='text-red-600'>Южной Корее</span>
-						<br />и экспортируем в РФ за 14 дней
+					<h1 className='text-3xl md:text-5xl font-bold text-gray-400 leading-tight'>
+						<span className='text-black'>Продажа автомобилей</span> в{' '}
+						<span className='text-black'>Южной Корее</span>.
+						<br />
+						<span className='text-gray-800'>Экспорт в страны СНГ</span> Отправка
+						до Владивостока каждую неделю
 					</h1>
 					<ul className='space-y-2 text-gray-700 text-lg'>
 						<li className='flex items-center gap-2'>
