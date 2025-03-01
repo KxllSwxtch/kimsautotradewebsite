@@ -21,13 +21,7 @@ const getFirstImage = (images) => {
 const CarCard = ({ car }) => {
 	const firstImage = getFirstImage(car.IMAGES)
 	return (
-		<motion.div
-			className='p-4 rounded-[10px] bg-white shadow-md flex flex-col justify-between gap-5 transition-all duration-300 hover:shadow-lg'
-			initial={{ opacity: 0, y: 30 }}
-			whileInView={{ opacity: 1, y: 0 }}
-			viewport={{ once: true }}
-			transition={{ duration: 0.5 }}
-		>
+		<div className='p-4 rounded-[10px] bg-white shadow-md flex flex-col justify-between gap-5 transition-all duration-300 hover:shadow-lg'>
 			{/* Изображение автомобиля */}
 			<div className='aspect-[16/9] rounded-[5px] overflow-hidden relative'>
 				<img
@@ -70,7 +64,7 @@ const CarCard = ({ car }) => {
 					Узнать подробнее
 				</a>
 			</div>
-		</motion.div>
+		</div>
 	)
 }
 

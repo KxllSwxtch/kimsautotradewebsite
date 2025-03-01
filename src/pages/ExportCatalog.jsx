@@ -273,11 +273,11 @@ const ExportCatalog = () => {
 				Каталог автомобилей на экспорт
 			</h1>
 
-			<div>
+			<div className='md:flex md:flex-row md:justify-center grid grid-cols-1'>
 				{/* Форма фильтрации */}
-				<div className='bg-white p-5 rounded-lg shadow-md mb-8'>
+				<div className='bg-white p-5 rounded-lg shadow-md mb-8 md:w-1/3'>
 					<form>
-						<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+						<div className='grid grid-cols-1 md:grid-cols-1 gap-4'>
 							<div>
 								<label>Марка</label>
 								<select
@@ -557,7 +557,7 @@ const ExportCatalog = () => {
 				</div>
 
 				{/* Сетка карточек автомобилей */}
-				<div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
+				<div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full md:ml-5'>
 					{cars
 						.sort((a, b) => (a.year > b.year ? 1 : -1))
 						.map((car) => (
