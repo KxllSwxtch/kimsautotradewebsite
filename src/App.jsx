@@ -7,6 +7,7 @@ import {
 	Contact,
 	CarDetails,
 	ExportCatalog,
+	ExportCarDetails,
 } from './pages'
 import { Header, Footer } from './components'
 
@@ -23,6 +24,10 @@ const App = () => {
 						<Route path='/contact' element={<Contact />} />
 						<Route path='/export-catalog' element={<ExportCatalog />} />
 						<Route path='/car/:carId' element={<CarDetails />} />
+						<Route
+							path='/export-catalog/:carId'
+							element={<ExportCarDetails />}
+						/>
 					</Routes>
 				</main>
 				<Footer />

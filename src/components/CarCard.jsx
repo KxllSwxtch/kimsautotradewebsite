@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 
 // Функция для форматирования цены
 const formatPrice = (price) => {
@@ -55,14 +56,14 @@ const CarCard = ({ car }) => {
 
 			{/* Кнопка "Подробнее" */}
 			<div className='p-4 text-center'>
-				<a
-					href={`https://www.encar.com/dc/dc_cardetailview.do?carid=${car.LOT}`}
+				<Link
+					to={`/export-catalog/${car.LOT}`}
 					target='_blank'
 					rel='noopener noreferrer'
 					className='inline-block bg-black hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-sm transition duration-300'
 				>
 					Узнать подробнее
-				</a>
+				</Link>
 			</div>
 		</div>
 	)
