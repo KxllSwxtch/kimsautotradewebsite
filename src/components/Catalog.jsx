@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import Select from 'react-select'
 
 import {
 	priceOptions,
@@ -8,6 +9,7 @@ import {
 	fuelOptions,
 	missionOptions,
 	colorOptions,
+	brandLogos,
 } from '../utils'
 import { CarListItem, Loader, Message } from '../components'
 import {
@@ -360,6 +362,76 @@ const Catalog = () => {
 		if (page < totalPages) setPage(page + 1)
 	}
 
+	const options = makerList.map((maker) => {
+		const translatedName =
+			carBrandsTranslation[maker.MAKER_NAME] || maker.MAKER_NAME
+		return {
+			value: maker.MAKER_NO,
+			label: (
+				<span className='flex items-center gap-2'>
+					{brandLogos[translatedName] && (
+						<img
+							src={brandLogos[translatedName]}
+							alt={translatedName}
+							className='inline-block w-5 auto'
+						/>
+					)}
+					{translatedName}
+				</span>
+			),
+			searchLabel: carBrandsTranslation[maker.MAKER_NAME] || maker.MAKER_NAME,
+		}
+	})
+
+	const customStyles = {
+		control: (provided) => ({
+			...provided,
+			borderRadius: '0.5rem',
+			borderColor: '#d1d5db',
+			boxShadow: 'none',
+			'&:hover': {
+				borderColor: '#9ca3af',
+			},
+		}),
+		option: (provided, state) => ({
+			...provided,
+			display: 'flex',
+			alignItems: 'center',
+			gap: '0.5rem',
+			color: state.isSelected ? '#fff' : '#374151',
+			backgroundColor: state.isSelected ? '#2563eb' : '#fff',
+			'&:hover': {
+				backgroundColor: '#f3f4f6',
+			},
+		}),
+	}
+
+	// eslint-disable-next-line react/prop-types
+	const BrandSelector = ({ handleMakerChange }) => {
+		const handleChange = (selectedOption) => {
+			handleMakerChange(selectedOption.value) // Обновляем selectedMaker
+		}
+
+		const customFilter = (option, inputValue) => {
+			return option.data.searchLabel
+				.toLowerCase()
+				.includes(inputValue.toLowerCase())
+		}
+
+		return (
+			<Select
+				ignoreCase
+				value={options.find((option) => option.value === selectedMaker)}
+				filterOption={customFilter} // Добавили кастомный фильтр
+				options={options}
+				onChange={handleChange}
+				placeholder='Марка'
+				styles={customStyles}
+				className='w-full text-gray-800 rounded-lg shadow-sm h-full'
+			/>
+		)
+	}
+
 	return (
 		<div className='p-4 mt-20 md:mt-30  text-secondary-500 min-h-screen'>
 			<h1 className='text-black text-3xl text-center w-full mb-5 font-medium'>
@@ -377,15 +449,15 @@ const Catalog = () => {
 							key={value}
 							onClick={() => handleCountryClick(value)}
 							className={`
-      cursor-pointer flex items-center justify-center gap-2 px-6 py-3 text-lg font-semibold rounded-full shadow-md transition-all duration-300
-      border-2 w-40 h-14
-      ${
-				country === value
-					? 'bg-accent-500 text-secondary-500 border-accent-500 scale-105 shadow-lg'
-					: 'bg-primary-500 text-accent-400 border-accent-500 hover:bg-accent-500 hover:text-secondary-500'
-			}
-      active:scale-95
-    `}
+								cursor-pointer flex items-center justify-center gap-2 px-6 py-3 text-lg font-semibold rounded-full shadow-md transition-all duration-300
+								border-2 w-40 h-14
+								${
+									country === value
+										? 'bg-accent-500 text-secondary-500 border-accent-500 scale-105 shadow-lg'
+										: 'bg-primary-500 text-accent-400 border-accent-500 hover:bg-accent-500 hover:text-secondary-500'
+								}
+								active:scale-95
+							`}
 						>
 							<span className='text-2xl'>{emoji}</span>
 							<span>{label}</span>
@@ -399,34 +471,7 @@ const Catalog = () => {
 						<div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
 							{/* Производитель */}
 							<div className='flex-1'>
-								<select
-									value={selectedMaker}
-									onChange={(e) => handleMakerChange(e.target.value)}
-									className='cursor-pointer w-full border border-yellow-500 bg-white text-black p-3 rounded-lg shadow-md focus:ring-red-600 focus:border-red-600 transition duration-300 appearance-none pr-10 relative'
-									style={{
-										backgroundImage:
-											'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="black"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>\')',
-										backgroundPosition: 'right 12px center',
-										backgroundRepeat: 'no-repeat',
-										backgroundSize: '1rem',
-									}}
-								>
-									<option value='' className='text-gray-500'>
-										Марка
-									</option>
-									{makerList
-										?.sort((a, b) => (a.MAKER_NAME > b.MAKER_NAME ? -1 : 1))
-										.map((maker) => (
-											<option
-												key={maker.MAKER_NO}
-												value={maker.MAKER_NO}
-												className='text-black'
-											>
-												{carBrandsTranslation[maker.MAKER_NAME] ||
-													maker.MAKER_NAME}
-											</option>
-										))}
-								</select>
+								<BrandSelector handleMakerChange={handleMakerChange} />
 							</div>
 
 							{/* Модель */}

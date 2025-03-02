@@ -89,9 +89,42 @@ const CarDetails = () => {
 						<p className='text-center text-gray-500'>Фотографии отсутствуют</p>
 					)}
 
-					<div className='hidden md:block'>
-						<Calculator />
+					<div className='mt-10 p-8 bg-white border border-gray-100 hidden md:block'>
+						<h3 className='text-2xl md:text-4xl font-bold text-gray-800 mb-8 text-center'>
+							Контакты для связи
+						</h3>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+							{/* Виталий */}
+							<div className='p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200'>
+								<p className='text-lg font-semibold text-gray-700 mb-1'>
+									Артём
+								</p>
+								<a
+									href='tel:+821093441782'
+									className='block text-xl text-red-600 hover:text-red-500 transition duration-300'
+								>
+									+82 10-8282-8062
+								</a>
+							</div>
+
+							{/* Ким Евгений */}
+							<div className='p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200'>
+								<p className='text-lg font-semibold text-gray-700 mb-1'>
+									Рамис
+								</p>
+								<a
+									href='tel:+821042252627'
+									className='block text-xl text-red-600 hover:text-red-500 transition duration-300'
+								>
+									+82 10-8029-6232
+								</a>
+							</div>
+						</div>
 					</div>
+
+					{/* <div className='hidden md:block'>
+						<Calculator />
+					</div> */}
 				</div>
 
 				{/* Информация об автомобиле */}
@@ -135,11 +168,11 @@ const CarDetails = () => {
 				</div>
 			</div>
 
-			<div className='md:hidden mt-10'>
+			{/* <div className='md:hidden mt-10'>
 				<Calculator />
-			</div>
+			</div> */}
 
-			<div className='mt-10 p-8 bg-white border border-gray-100'>
+			<div className='mt-10 p-8 bg-white border border-gray-100 md:hidden block'>
 				<h3 className='text-2xl md:text-4xl font-bold text-gray-800 mb-8 text-center'>
 					Контакты для связи
 				</h3>

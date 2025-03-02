@@ -19,54 +19,10 @@ const fuelTypeTranslation = {
 	수소: 'Водород',
 }
 
-let conversionRatesCache = null
-
 const CarListItem = ({ car }) => {
-	// Состояние для курсов валют (usd -> krw и usd -> rub)
-	const [conversionRates, setConversionRates] = useState(conversionRatesCache)
-
-	useEffect(() => {
-		if (!conversionRatesCache) {
-			fetch(
-				'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json',
-			)
-				.then((response) => response.json())
-				.then((data) => {
-					const rates = {
-						// Получаем курс: 1 USD = ? KRW и 1 USD = ? RUB
-						krw: data.usd.krw,
-						rub: data.usd.rub,
-					}
-					conversionRatesCache = rates
-					setConversionRates(rates)
-				})
-				.catch((err) => {
-					console.error('Ошибка при загрузке курсов валют:', err)
-				})
-		}
-	}, [])
-
-	// Если курсы не загружены, можно использовать дефолтные значения (например, 1300 и 18) или показывать "Загрузка..."
-	const usdRate = conversionRates ? conversionRates.krw : 1300
-	const rubRate = conversionRates ? conversionRates.rub : 18
-
 	// Цена в вонах
 	const priceWonNum = car.price.replace(/\D+/gm, '') * 10000
 	const priceWonFormatted = priceWonNum.toLocaleString()
-
-	// Цена в долларах = цена в вонах / курс KRW (1 USD = usdRate KRW)
-	const priceUsdNum = priceWonNum / usdRate
-	const priceUsdFormatted = priceUsdNum.toLocaleString(undefined, {
-		minimumFractionDigits: 0,
-		maximumFractionDigits: 0,
-	})
-
-	// Цена в рублях = цена в долларах * курс (1 USD = rubRate RUB)
-	const priceRubNum = priceUsdNum * rubRate
-	const priceRubFormatted = priceRubNum.toLocaleString(undefined, {
-		minimumFractionDigits: 0,
-		maximumFractionDigits: 0,
-	})
 
 	const formattedCarMileage = parseInt(
 		car.mileage.replace(/\D+/gm, ''),
@@ -124,22 +80,10 @@ const CarListItem = ({ car }) => {
 
 				{/* Цена в разных валютах и кнопка */}
 				<div className='mt-4'>
-					<div className='flex justify-left items-center'>
+					<div className='mt-4 flex justify-between items-center'>
 						<span className='text-lg font-bold text-black'>
 							₩{priceWonFormatted}
 						</span>
-					</div>
-					<div className='flex justify-left items-center'>
-						<span className='text-lg font-bold text-black'>
-							${priceUsdFormatted}
-						</span>
-					</div>
-					<div className='flex justify-left items-center'>
-						<span className='text-lg font-bold text-black'>
-							{priceRubFormatted} ₽
-						</span>
-					</div>
-					<div className='mt-4 flex justify-end'>
 						<Link
 							to={`/car/${carId}`}
 							target='_blank'
