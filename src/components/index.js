@@ -17,6 +17,7 @@ import ImageSlider from './ImageSlider'
 import HowToChooseCarSection from './HowToChooseCarSection'
 import HowToBuySection from './HowToBuySection'
 import CarCard from './CarCard'
+import FAQItem from './FAQItem'
 
 export {
 	Header,
@@ -38,4 +39,5 @@ export {
 	HowToChooseCarSection,
 	HowToBuySection,
 	CarCard,
+	FAQItem,
 }

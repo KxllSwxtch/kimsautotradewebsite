@@ -5,6 +5,7 @@ import { CarCard, Loader } from '../components'
 import { brandLogos } from '../utils'
 
 const ExportCatalog = () => {
+	const [usdKrwRate, setUsdKrwRate] = useState(null)
 	const [cars, setCars] = useState([])
 	const [loading, setLoading] = useState(true)
 	const [currentPage, setCurrentPage] = useState(1)
@@ -142,6 +143,29 @@ const ExportCatalog = () => {
 	useEffect(() => {
 		fetchCars(currentPage)
 	}, [currentPage])
+
+	useEffect(() => {
+		const fetchUsdKrwRate = async () => {
+			try {
+				const response = await axios.get(
+					'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json',
+				)
+
+				if (response.status === 200) {
+					const jsonData = response.data
+					const rate = jsonData['usd']['krw']
+
+					console.log(rate)
+
+					setUsdKrwRate(rate)
+				}
+			} catch (e) {
+				console.error(e)
+			}
+		}
+
+		fetchUsdKrwRate()
+	}, [])
 
 	// Функция для изменения текущей страницы
 	const changePage = (pageNumber) => {
@@ -632,7 +656,7 @@ const ExportCatalog = () => {
 					{cars
 						.sort((a, b) => (a.year > b.year ? 1 : -1))
 						.map((car) => (
-							<CarCard key={car.ID} car={car} />
+							<CarCard usdKrwRate={usdKrwRate} key={car.ID} car={car} />
 						))}
 				</div>
 			</div>

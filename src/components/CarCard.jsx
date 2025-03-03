@@ -1,10 +1,11 @@
+import { useEffect, useState } from 'react'
+import axios from 'axios'
 import PropTypes from 'prop-types'
-import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 
 // Функция для форматирования цены
 const formatPrice = (price) => {
-	return `₩${price.toLocaleString()}`
+	return `${price.toLocaleString()}`
 }
 
 // Функция для форматирования пробега
@@ -19,8 +20,13 @@ const getFirstImage = (images) => {
 	return imageList[0]
 }
 
-const CarCard = ({ car }) => {
+const CarCard = ({ car, usdKrwRate }) => {
 	const firstImage = getFirstImage(car.IMAGES)
+
+	// Конвертация цены
+	const carPriceKrw = car?.FINISH
+	const carPriceUsd = Math.round(car?.FINISH / usdKrwRate)
+
 	return (
 		<div className='p-4 rounded-[10px] bg-white shadow-md flex flex-col justify-between gap-5 transition-all duration-300 hover:shadow-lg'>
 			{/* Изображение автомобиля */}
@@ -49,8 +55,12 @@ const CarCard = ({ car }) => {
 					<span>Объём</span>
 					<span>{car.ENG_V.toLocaleString()} см³</span>
 				</div>
-				<p className='text-black font-bold text-xl text-center mt-5'>
-					{formatPrice(car.FINISH)}
+				<p className='text-black font-bold text-md text-center mt-5'>
+					₩{formatPrice(carPriceKrw)}
+				</p>
+				<hr />
+				<p className='text-black font-bold text-md text-center'>
+					${formatPrice(carPriceUsd)}
 				</p>
 			</div>
 
@@ -82,6 +92,7 @@ CarCard.propTypes = {
 		IMAGES: PropTypes.string, // Строка с URL изображений
 		LOT: PropTypes.number.isRequired, // Номер лота для ссылки
 	}),
+	usdKrwRate: PropTypes.number.isRequired,
 }
 
 export default CarCard

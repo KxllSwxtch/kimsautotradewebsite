@@ -5,6 +5,7 @@ import Contact from './Contact'
 import CarDetails from './CarDetails'
 import ExportCatalog from './ExportCatalog'
 import ExportCarDetails from './ExportCarDetails'
+import FAQ from './FAQ'
 
 export {
 	Home,
@@ -14,4 +15,5 @@ export {
 	CarDetails,
 	ExportCatalog,
 	ExportCarDetails,
+	FAQ,
 }
