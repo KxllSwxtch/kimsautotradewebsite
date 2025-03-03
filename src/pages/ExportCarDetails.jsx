@@ -8,7 +8,57 @@ import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import { Loader } from '../components'
 
+const translations = {
+	price: 'Цена в Корее (₩)',
+	연식: 'Год выпуска',
+	최초등록일: 'Дата первой регистрации',
+	연료: 'Тип топлива',
+	휘발유: 'Бензин',
+	가솔린: 'Бензин',
+	경유: 'Дизель',
+	전기: 'Электро',
+	하이브리드: 'Гибрид',
+	변속기: 'Трансмиссия',
+	오토: 'Автомат',
+	수동: 'Механика',
+	색상: 'Цвет',
+	흰색: 'Белый',
+	검정색: 'Чёрный',
+	회색: 'Серый',
+	파란색: 'Синий',
+	빨간색: 'Красный',
+	주행거리: 'Пробег',
+	차량번호: 'Гос. номер',
+	차대번호: 'VIN-номер',
+	'압류｜저당': 'Был в ДТП',
+	'0건｜0건': 'Нет',
+	모델명: 'Модель',
+	세금미납: 'Задолженность по налогам',
+	없음: 'Отсутствует',
+	제시번호: 'Номер предложения',
+}
+
+const colorTranslations = {
+	흰색: 'Белый',
+	검정색: 'Чёрный',
+	회색: 'Серый',
+	파란색: 'Синий',
+	빨간색: 'Красный',
+	은색: 'Серебристый',
+	녹색: 'Зелёный',
+	노란색: 'Жёлтый',
+	주황색: 'Оранжевый',
+	보라색: 'Фиолетовый',
+	갈색: 'Коричневый',
+	베이지색: 'Бежевый',
+	분홍색: 'Розовый',
+	금색: 'Золотой',
+	청록색: 'Бирюзовый',
+	기타: 'Другой',
+}
+
 const ExportCarDetails = () => {
+	const [usdKrwRate, setUsdKrwRate] = useState(null)
 	const [car, setCar] = useState(null)
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState(null)
@@ -36,6 +86,27 @@ const ExportCarDetails = () => {
 		}
 	}, [carId])
 
+	useEffect(() => {
+		const fetchUsdKrwRate = async () => {
+			try {
+				const response = await axios.get(
+					'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json',
+				)
+
+				if (response.status === 200) {
+					const jsonData = response.data
+					const rate = jsonData['usd']['krw']
+
+					setUsdKrwRate(rate)
+				}
+			} catch (e) {
+				console.error(e)
+			}
+		}
+
+		fetchUsdKrwRate()
+	}, [])
+
 	if (loading) return <Loader />
 	if (error) return <p className='text-center text-red-500'>{error}</p>
 	if (!car) return <p className='text-center text-lg'>Автомобиль не найден</p>
@@ -50,6 +121,12 @@ const ExportCarDetails = () => {
 	const formattedYearMonth = `${car?.category?.yearMonth.substring(
 		4,
 	)}/${car?.category?.yearMonth.substring(0, 4)}`
+
+	const carPriceKorea = (car?.advertisement?.price * 10000).toLocaleString()
+	const carPriceUsd = (
+		(car?.advertisement?.price * 10000) /
+		usdKrwRate
+	).toLocaleString()
 
 	return (
 		<div className='container mx-auto mt-20 md:mt-30 p-6 bg-white shadow-lg rounded-lg'>
@@ -92,20 +169,23 @@ const ExportCarDetails = () => {
 					{car?.spec?.displacement.toLocaleString()} см³
 				</p>
 				<p className='text-gray-600'>
-					<strong>Трансмиссия:</strong> {car?.spec?.transmissionName}
+					<strong>Трансмиссия:</strong>{' '}
+					{translations[car?.spec?.transmissionName]}
 				</p>
 				<p className='text-gray-600'>
-					<strong>Тип топлива:</strong> {car?.spec?.fuelName}
+					<strong>Тип топлива:</strong> {translations[car?.spec?.fuelName]}
 				</p>
 				<p className='text-gray-600'>
-					<strong>Цвет:</strong> {car?.spec?.colorName}
+					<strong>Цвет:</strong> {colorTranslations[car?.spec?.colorName]}
 				</p>
 				<p className='text-gray-600'>
 					<strong>Пробег:</strong> {car?.spec?.mileage.toLocaleString()} км
 				</p>
-				<p className='text-gray-800 font-bold text-lg'>
-					<strong>Цена в Корее:</strong> ₩
-					{(car?.advertisement?.price * 10000).toLocaleString()}
+				<p className='text-gray-800 font-bold text-lg mt-4'>
+					<strong>
+						Цена в Корее: <br />
+					</strong>{' '}
+					₩{carPriceKorea} | ${carPriceUsd}
 				</p>
 			</div>
 
