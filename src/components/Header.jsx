@@ -92,12 +92,12 @@ const Header = () => {
 						>
 							Каталог авто на заказ из Кореи
 						</Link>
-						<Link
+						{/* <Link
 							to='/calculator'
 							className='transition-colors hover:text-[#ff4c4c]'
 						>
 							Калькулятор стоимости
-						</Link>
+						</Link> */}
 					</nav>
 					{/* Номера телефонов */}
 					<div className='hidden md:flex items-center gap-8'>
@@ -208,13 +208,13 @@ const Header = () => {
 						>
 							Каталог авто на заказ из Кореи
 						</Link>
-						<Link
+						{/* <Link
 							to='/calculator'
 							onClick={toggleMenu}
 							className='text-xl font-semibold hover:text-[#ff4c4c] transition-colors duration-300'
 						>
 							Калькулятор стоимости
-						</Link>
+						</Link> */}
 					</nav>
 
 					{/* Разделитель */}

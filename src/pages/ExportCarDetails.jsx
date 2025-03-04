@@ -59,9 +59,15 @@ const colorTranslations = {
 
 const ExportCarDetails = () => {
 	const [usdKrwRate, setUsdKrwRate] = useState(null)
+	const [usdRubRate, setUsdRubRate] = useState(null)
+
 	const [car, setCar] = useState(null)
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState(null)
+	const [selectedCountry, setSelectedCountry] = useState(null)
+	const [loadingCalc, setLoadingCalc] = useState(false)
+	const [errorCalc, setErrorCalc] = useState('')
+	const [calculatedResult, setCalculatedResult] = useState(null)
 
 	const { carId } = useParams()
 
@@ -96,8 +102,10 @@ const ExportCarDetails = () => {
 				if (response.status === 200) {
 					const jsonData = response.data
 					const rate = jsonData['usd']['krw']
+					const usdRubRate = jsonData['usd']['rub']
 
 					setUsdKrwRate(rate)
+					setUsdRubRate(usdRubRate)
 				}
 			} catch (e) {
 				console.error(e)
@@ -106,6 +114,90 @@ const ExportCarDetails = () => {
 
 		fetchUsdKrwRate()
 	}, [])
+
+	const handleCalculate = async () => {
+		setLoadingCalc(true)
+		setErrorCalc('')
+
+		// Логика расчёта логистики
+		let logisticsCost = 2040000 // По умолчанию для всех санкционных авто
+		logisticsCost = 2040000 / usdKrwRate
+
+		if (car?.spec?.displacement > 2000) logisticsCost = logisticsCost + 200
+
+		const logisticsCostRub = logisticsCost * usdRubRate
+
+		try {
+			const response = await axios.post(
+				'https://corsproxy.io/?key=28174bc7&url=https://calcus.ru/calculate/Customs',
+				new URLSearchParams({
+					owner: 1,
+					age: calculateAge(
+						car?.category?.formYear,
+						car?.category?.yearMonth?.substring(4, 6),
+					),
+					engine: car?.spec?.fuelName === '가솔린' ? 1 : 2,
+					power: 1,
+					power_unit: 1,
+					value: car?.spec?.displacement,
+					price: car?.advertisement?.price * 10000,
+					curr: 'KRW',
+				}).toString(),
+				{
+					withCredentials: false,
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+					},
+				},
+			)
+
+			if (!response.status === 200) throw new Error('Ошибка при расчёте')
+
+			const data = await response.data
+
+			const formattedTotal = parseInt(
+				data.total.split(',')[0].split(' ').join(''),
+			)
+			const formattedTotal2 = parseInt(
+				data.total2.split(',')[0].split(' ').join(''),
+			)
+
+			console.log()
+
+			const totalWithLogistics = formattedTotal + logisticsCostRub
+			const totalCarWithLogistics = formattedTotal2 + logisticsCostRub
+
+			setCalculatedResult({
+				...data,
+				logisticsCostRub,
+				totalWithLogistics,
+				totalCarWithLogistics,
+			})
+		} catch (err) {
+			setErrorCalc(err.message)
+		} finally {
+			setLoadingCalc(false)
+		}
+	}
+
+	const calculateAge = (year, month) => {
+		const currentDate = new Date()
+		const carDate = new Date(year, month - 1, 1)
+
+		const ageInMonths =
+			(currentDate.getFullYear() - carDate.getFullYear()) * 12 +
+			(currentDate.getMonth() - carDate.getMonth())
+
+		if (ageInMonths < 36) {
+			return '0-3'
+		} else if (ageInMonths < 60) {
+			return '3-5'
+		} else if (ageInMonths < 84) {
+			return '5-7'
+		} else {
+			return '7-0'
+		}
+	}
 
 	if (loading) return <Loader />
 	if (error) return <p className='text-center text-red-500'>{error}</p>
@@ -123,10 +215,8 @@ const ExportCarDetails = () => {
 	)}/${car?.category?.yearMonth.substring(0, 4)}`
 
 	const carPriceKorea = (car?.advertisement?.price * 10000).toLocaleString()
-	const carPriceUsd = (
-		(car?.advertisement?.price * 10000) /
-		usdKrwRate
-	).toLocaleString()
+	const carPriceUsd = (car?.advertisement?.price * 10000) / usdKrwRate
+	const carPriceRub = carPriceUsd * usdRubRate
 
 	return (
 		<div className='container mx-auto mt-20 md:mt-30 p-6 bg-white shadow-lg rounded-lg'>
@@ -205,6 +295,71 @@ const ExportCarDetails = () => {
 					</a>
 				</p>
 			</div>
+
+			{/* Выбор страны для расчёта */}
+			<div className='mt-6 p-5 bg-white shadow-md rounded-lg text-center'>
+				<h2 className='text-xl font-semibold mb-4'>Рассчитать стоимость до:</h2>
+				<div className='flex justify-center gap-4'>
+					<button
+						onClick={() => setSelectedCountry('russia')}
+						className='bg-blue-600 hover:bg-blue-700 text-white cursor-pointer font-semibold py-2 px-4 rounded-lg shadow transition duration-300'
+					>
+						🇷🇺 Россия
+					</button>
+					<button
+						onClick={() => setSelectedCountry('kazakhstan')}
+						className='bg-green-600 hover:bg-green-700 text-white cursor-pointer font-semibold py-2 px-4 rounded-lg shadow transition duration-300'
+					>
+						🇰🇿 Казахстан
+					</button>
+					<button
+						onClick={() => setSelectedCountry('kyrgyzstan')}
+						className='bg-yellow-500 hover:bg-yellow-600 text-white cursor-pointer font-semibold py-2 px-4 rounded-lg shadow transition duration-300'
+					>
+						🇰🇬 Кыргызстан
+					</button>
+				</div>
+			</div>
+
+			{selectedCountry === 'russia' && (
+				<div className='mt-6 flex justify-center'>
+					<button
+						className='py-2 px-6 rounded-lg shadow bg-red-600 hover:bg-red-700 text-white font-semibold transition duration-300'
+						onClick={handleCalculate}
+						disabled={loadingCalc}
+					>
+						{loadingCalc ? 'Расчёт...' : 'Рассчитать стоимость'}
+					</button>
+				</div>
+			)}
+
+			{calculatedResult && selectedCountry === 'russia' && (
+				<div className='mt-6 p-5 bg-gray-50 shadow-md rounded-lg text-center'>
+					<h2 className='text-xl font-semibold mb-4'>Расчёт для России</h2>
+					<p className='text-gray-600'>
+						Стоимость автомобиля: {carPriceRub.toLocaleString('ru-RU')} ₽
+					</p>
+					<p className='text-gray-600'>
+						Таможенная пошлина: {calculatedResult?.tax?.toLocaleString()} ₽
+					</p>
+					<p className='text-gray-600'>
+						Таможенный сбор: {calculatedResult?.sbor?.toLocaleString()} ₽
+					</p>
+					<p className='text-gray-600'>
+						Утилизационный сбор: {calculatedResult?.util?.toLocaleString()} ₽
+					</p>
+					{/* <p className='text-gray-600'>
+						Итого (таможенные платежи во Владивостоке):{' '}
+						{calculatedResult?.total?.toLocaleString()} ₽
+					</p> */}
+					<p className='text-black mt-3 font-medium text-lg w-1/2 mx-auto'>
+						Стоимость автомобиля под ключ во Владивостоке: <br />
+						{calculatedResult?.totalCarWithLogistics?.toLocaleString('ru-RU')} ₽
+					</p>
+				</div>
+			)}
+
+			{errorCalc && <p className='text-center text-red-500'>{errorCalc}</p>}
 		</div>
 	)
 }
