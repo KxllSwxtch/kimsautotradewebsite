@@ -6,7 +6,7 @@ import { Navigation, Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
-import { Loader } from '../components'
+import { Loader, KazakhstanCalculator } from '../components'
 
 const translations = {
 	price: 'Цена в Корее (₩)',
@@ -58,8 +58,11 @@ const colorTranslations = {
 }
 
 const ExportCarDetails = () => {
+	const [calculatedResultKZ, setCalculatedResultKZ] = useState(null)
+
 	const [usdKrwRate, setUsdKrwRate] = useState(null)
 	const [usdRubRate, setUsdRubRate] = useState(null)
+	const [usdKztRate, setUsdKztRate] = useState(null)
 
 	const [car, setCar] = useState(null)
 	const [loading, setLoading] = useState(true)
@@ -103,9 +106,11 @@ const ExportCarDetails = () => {
 					const jsonData = response.data
 					const rate = jsonData['usd']['krw']
 					const usdRubRate = jsonData['usd']['rub']
+					const usdKztRate = jsonData['usd']['kzt']
 
 					setUsdKrwRate(rate)
 					setUsdRubRate(usdRubRate)
+					setUsdKztRate(usdKztRate + 3)
 				}
 			} catch (e) {
 				console.error(e)
@@ -115,6 +120,7 @@ const ExportCarDetails = () => {
 		fetchUsdKrwRate()
 	}, [])
 
+	// Расчёт под ключ до РФ
 	const handleCalculate = async () => {
 		setLoadingCalc(true)
 		setErrorCalc('')
@@ -161,8 +167,6 @@ const ExportCarDetails = () => {
 			const formattedTotal2 = parseInt(
 				data.total2.split(',')[0].split(' ').join(''),
 			)
-
-			console.log()
 
 			const totalWithLogistics = formattedTotal + logisticsCostRub
 			const totalCarWithLogistics = formattedTotal2 + logisticsCostRub
@@ -214,8 +218,10 @@ const ExportCarDetails = () => {
 		4,
 	)}/${car?.category?.yearMonth.substring(0, 4)}`
 
-	const carPriceKorea = (car?.advertisement?.price * 10000).toLocaleString()
-	const carPriceUsd = (car?.advertisement?.price * 10000) / usdKrwRate
+	const carPriceKorea = car?.advertisement?.price * 10000
+	const carPriceUsd = Math.round(
+		(car?.advertisement?.price * 10000) / usdKrwRate,
+	)
 	const carPriceRub = carPriceUsd * usdRubRate
 
 	return (
@@ -227,7 +233,7 @@ const ExportCarDetails = () => {
 
 			{/* Слайдер с фото */}
 			{sortedPhotos.length > 0 && (
-				<div className='max-w-2xl mx-auto mb-6'>
+				<div className='max-w-2xl mx-auto mb-'>
 					<Swiper
 						modules={[Navigation, Pagination]}
 						spaceBetween={10}
@@ -252,11 +258,14 @@ const ExportCarDetails = () => {
 			{/* Данные об автомобиле */}
 			<div className='mt-6 p-5 bg-gray-50 shadow-md rounded-lg'>
 				<p className='text-gray-600'>
-					<strong>Год выпуска:</strong> {formattedYearMonth}
+					<strong>Дата регистрации:</strong> {formattedYearMonth}
 				</p>
 				<p className='text-gray-600'>
 					<strong>Объём двигателя:</strong>{' '}
 					{car?.spec?.displacement.toLocaleString()} см³
+				</p>
+				<p className='text-gray-600'>
+					<strong>Пробег:</strong> {car?.spec?.mileage.toLocaleString()} км
 				</p>
 				<p className='text-gray-600'>
 					<strong>Трансмиссия:</strong>{' '}
@@ -268,14 +277,11 @@ const ExportCarDetails = () => {
 				<p className='text-gray-600'>
 					<strong>Цвет:</strong> {colorTranslations[car?.spec?.colorName]}
 				</p>
-				<p className='text-gray-600'>
-					<strong>Пробег:</strong> {car?.spec?.mileage.toLocaleString()} км
-				</p>
 				<p className='text-gray-800 font-bold text-lg mt-4'>
 					<strong>
 						Цена в Корее: <br />
 					</strong>{' '}
-					₩{carPriceKorea} | ${carPriceUsd}
+					₩{carPriceKorea.toLocaleString()} | ${carPriceUsd.toLocaleString()}
 				</p>
 			</div>
 
@@ -297,38 +303,70 @@ const ExportCarDetails = () => {
 			</div>
 
 			{/* Выбор страны для расчёта */}
-			<div className='mt-6 p-5 bg-white shadow-md rounded-lg text-center'>
-				<h2 className='text-xl font-semibold mb-4'>Рассчитать стоимость до:</h2>
-				<div className='flex justify-center gap-4'>
+			<div className='mt-6 p-6 bg-white shadow-lg rounded-lg text-center border border-gray-200'>
+				<h2 className='text-2xl font-semibold mb-6 text-gray-800'>
+					Рассчитать стоимость до:
+				</h2>
+				<div className='flex justify-center gap-6 flex-wrap'>
 					<button
 						onClick={() => setSelectedCountry('russia')}
-						className='bg-blue-600 hover:bg-blue-700 text-white cursor-pointer font-semibold py-2 px-4 rounded-lg shadow transition duration-300'
+						className={`px-6 py-3 rounded-lg shadow-md text-lg font-semibold transition duration-300 border-2 cursor-pointer
+				${
+					selectedCountry === 'russia'
+						? 'bg-blue-700 text-white border-blue-700'
+						: 'bg-white text-blue-700 border-blue-500 hover:bg-blue-100'
+				}`}
 					>
 						🇷🇺 Россия
 					</button>
 					<button
 						onClick={() => setSelectedCountry('kazakhstan')}
-						className='bg-green-600 hover:bg-green-700 text-white cursor-pointer font-semibold py-2 px-4 rounded-lg shadow transition duration-300'
+						className={`px-6 py-3 rounded-lg shadow-md text-lg font-semibold transition duration-300 border-2 cursor-pointer
+				${
+					selectedCountry === 'kazakhstan'
+						? 'bg-green-700 text-white border-green-700'
+						: 'bg-white text-green-700 border-green-500 hover:bg-green-100'
+				}`}
 					>
 						🇰🇿 Казахстан
 					</button>
 					<button
 						onClick={() => setSelectedCountry('kyrgyzstan')}
-						className='bg-yellow-500 hover:bg-yellow-600 text-white cursor-pointer font-semibold py-2 px-4 rounded-lg shadow transition duration-300'
+						className={`px-6 py-3 rounded-lg shadow-md text-lg font-semibold transition duration-300 border-2 cursor-pointer
+				${
+					selectedCountry === 'kyrgyzstan'
+						? 'bg-yellow-600 text-white border-yellow-600'
+						: 'bg-white text-yellow-700 border-yellow-500 hover:bg-yellow-100'
+				}`}
 					>
 						🇰🇬 Кыргызстан
 					</button>
 				</div>
 			</div>
 
+			{/* РФ */}
 			{selectedCountry === 'russia' && (
-				<div className='mt-6 flex justify-center'>
+				<div className='mt-8 flex justify-center'>
 					<button
-						className='py-2 px-6 rounded-lg shadow bg-red-600 hover:bg-red-700 text-white font-semibold transition duration-300'
+						className={`cursor-pointer relative py-3 px-10 rounded-lg shadow-xl text-lg font-semibold transition-all duration-300 border-2 flex items-center gap-2
+			${
+				loadingCalc
+					? 'bg-gray-600 border-gray-700 text-gray-300 opacity-60 cursor-not-allowed'
+					: 'bg-gradient-to-r from-red-600 to-red-700 border-red-800 text-white hover:from-red-700 hover:to-red-800 hover:border-red-900 hover:scale-105'
+			}`}
 						onClick={handleCalculate}
 						disabled={loadingCalc}
 					>
-						{loadingCalc ? 'Расчёт...' : 'Рассчитать стоимость'}
+						{loadingCalc ? (
+							<>
+								<span className='animate-spin border-t-2 border-white border-solid rounded-full w-5 h-5'></span>
+								<span>Расчёт...</span>
+							</>
+						) : (
+							<>
+								📊 <span>Рассчитать стоимость</span>
+							</>
+						)}
 					</button>
 				</div>
 			)}
@@ -355,6 +393,39 @@ const ExportCarDetails = () => {
 					<p className='text-black mt-3 font-medium text-lg w-1/2 mx-auto'>
 						Стоимость автомобиля под ключ во Владивостоке: <br />
 						{calculatedResult?.totalCarWithLogistics?.toLocaleString('ru-RU')} ₽
+					</p>
+				</div>
+			)}
+
+			{/* КЗ */}
+			{selectedCountry === 'kazakhstan' && (
+				<KazakhstanCalculator
+					usdKztRate={usdKztRate}
+					usdKrwRate={usdKrwRate}
+					carPriceKRW={carPriceKorea}
+				/>
+			)}
+
+			{calculatedResultKZ && selectedCountry === 'kazakhstan' && (
+				<div className='mt-6 p-5 bg-gray-50 shadow-md rounded-lg text-center'>
+					<h2 className='text-xl font-semibold mb-4'>Расчёт для Казахстана</h2>
+					<p className='text-gray-600'>
+						Стоимость авто:{' '}
+						{Math.round(calculatedResultKZ?.carPriceKZT).toLocaleString()} ₸
+					</p>
+					<p className='text-gray-600'>
+						Таможенная пошлина (15%):{' '}
+						{Math.round(calculatedResultKZ?.vatKZT).toLocaleString()} ₸
+					</p>
+					<p className='text-gray-600'>
+						НДС (12%): {Math.round(calculatedResultKZ?.vatKZT).toLocaleString()}{' '}
+						₸
+					</p>
+					<p className='text-black mt-3 font-medium text-lg w-1/2 mx-auto'>
+						<strong>
+							Итого:{' '}
+							{Math.round(calculatedResultKZ?.totalCostKZT).toLocaleString()} ₸
+						</strong>
 					</p>
 				</div>
 			)}

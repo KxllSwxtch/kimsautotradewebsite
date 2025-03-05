@@ -126,12 +126,7 @@ const ExportCatalog = () => {
 			)
 			const newCars = response.data
 
-			if (newCars.length === 0) {
-				setTotalPages(pageNumber - 1)
-			} else {
-				setCars(newCars)
-				setTotalPages(5)
-			}
+			setCars(newCars)
 			setLoading(false)
 		} catch (error) {
 			console.error('Ошибка при загрузке данных:', error)
@@ -139,9 +134,36 @@ const ExportCatalog = () => {
 		}
 	}
 
+	// Получаем общее кол-во автомобилей по поиску или без
+	const fetchTotalCars = async () => {
+		try {
+			const response = await axios.get(
+				`https://corsproxy.io/${encodeURIComponent(
+					`https://api.darvin.digital/api.php?method=get_cars_count&marka_id=${filters.brand}&model_id=${filters.model}&year_from=${filters.yearFrom}&year_to=${filters.yearTo}&mileage_from=${filters.mileageFrom}&mileage_to=${filters.mileageTo}&engine_from=${filters.capacityFrom}&engine_to=${filters.capacityTo}&price_from=${filters.priceFrom}&price_to=${filters.priceTo}&sort=`,
+				)}`,
+			)
+
+			if (response.data.length > 0 && response.data[0].TOTAL_COUNT) {
+				const totalCars = response.data[0].TOTAL_COUNT
+				const carsPerPage = 24 // ⚡ Количество машин на странице
+
+				setTotalPages(Math.ceil(totalCars / carsPerPage))
+			} else {
+				setTotalPages(1)
+			}
+		} catch (error) {
+			console.error(
+				'Ошибка при получении общего количества автомобилей:',
+				error,
+			)
+			setTotalPages(1)
+		}
+	}
+
 	// Загрузка данных при первом рендере и при изменении номера страницы
 	useEffect(() => {
 		fetchCars(currentPage)
+		fetchTotalCars()
 	}, [currentPage])
 
 	useEffect(() => {
@@ -170,9 +192,8 @@ const ExportCatalog = () => {
 	// Функция для изменения текущей страницы
 	const changePage = (pageNumber) => {
 		window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
-		if (pageNumber > 0 && pageNumber <= totalPages) {
-			setCurrentPage(pageNumber)
-		}
+		if (pageNumber < 1 || pageNumber > totalPages) return
+		setCurrentPage(pageNumber)
 	}
 
 	// Функция для получения моделей по выбранной марке
@@ -299,8 +320,8 @@ const ExportCatalog = () => {
 
 	// Применение фильтров
 	const applyFilters = () => {
-		setCurrentPage(1)
-		fetchCars(1)
+		setCurrentPage(1) // Сброс на первую страницу
+		fetchCars(1) // Перезагружаем список машин с новыми фильтрами
 	}
 
 	// Сброс фильтров
@@ -319,15 +340,40 @@ const ExportCatalog = () => {
 		})
 		setCurrentPage(1)
 		setModels([])
-		fetchCars(1)
+		fetchCars()
 	}
 
 	// Генерация кнопок пагинации
 	const renderPagination = () => {
+		const maxPageButtons = 5 // Количество страниц слева и справа
 		const pageNumbers = []
 
-		// Генерация номеров страниц
-		for (let i = 1; i <= totalPages; i++) {
+		const startPage = Math.max(1, currentPage - maxPageButtons)
+		const endPage = Math.min(totalPages, currentPage + maxPageButtons)
+
+		// Добавляем кнопку "Первая страница", если currentPage > 1
+		if (startPage > 1) {
+			pageNumbers.push(
+				<button
+					key={1}
+					onClick={() => changePage(1)}
+					className={`cursor-pointer w-10 h-10 border rounded-md mx-1 transition duration-300 ${
+						currentPage === 1
+							? 'bg-gray-200 text-gray-800 font-bold'
+							: 'bg-white hover:bg-gray-100 text-gray-600'
+					}`}
+				>
+					1
+				</button>,
+			)
+
+			if (startPage > 2) {
+				pageNumbers.push(<span key='dots1'>...</span>)
+			}
+		}
+
+		// Добавляем страницы в диапазоне
+		for (let i = startPage; i <= endPage; i++) {
 			pageNumbers.push(
 				<button
 					key={i}
@@ -343,9 +389,30 @@ const ExportCatalog = () => {
 			)
 		}
 
+		// Добавляем кнопку "Последняя страница", если currentPage < totalPages
+		if (endPage < totalPages) {
+			if (endPage < totalPages - 1) {
+				pageNumbers.push(<span key='dots2'>...</span>)
+			}
+
+			pageNumbers.push(
+				<button
+					key={totalPages}
+					onClick={() => changePage(totalPages)}
+					className={`cursor-pointer w-10 h-10 border rounded-md mx-1 transition duration-300 ${
+						currentPage === totalPages
+							? 'bg-gray-200 text-gray-800 font-bold'
+							: 'bg-white hover:bg-gray-100 text-gray-600'
+					}`}
+				>
+					{totalPages}
+				</button>,
+			)
+		}
+
 		return (
 			<div className='flex justify-center mt-10 mb-20'>
-				{/* Кнопка предыдущая страница */}
+				{/* Кнопка "Назад" */}
 				<button
 					onClick={() => changePage(currentPage - 1)}
 					className='cursor-pointer w-10 h-10 border rounded-md mx-1 transition duration-300 hover:bg-gray-100 text-gray-600'
@@ -353,8 +420,10 @@ const ExportCatalog = () => {
 				>
 					&lt;
 				</button>
+
 				{pageNumbers}
-				{/* Кнопка следующая страница */}
+
+				{/* Кнопка "Вперёд" */}
 				<button
 					onClick={() => changePage(currentPage + 1)}
 					className='cursor-pointer w-10 h-10 border rounded-md mx-1 transition duration-300 hover:bg-gray-100 text-gray-600'
@@ -652,13 +721,19 @@ const ExportCatalog = () => {
 				</div>
 
 				{/* Сетка карточек автомобилей */}
-				<div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full md:ml-5'>
-					{cars
-						.sort((a, b) => (a.year > b.year ? 1 : -1))
-						.map((car) => (
-							<CarCard usdKrwRate={usdKrwRate} key={car.ID} car={car} />
-						))}
-				</div>
+				{cars.length > 0 ? (
+					<div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full md:ml-5'>
+						{cars
+							.sort((a, b) => (a.year > b.year ? 1 : -1))
+							.map((car) => (
+								<CarCard usdKrwRate={usdKrwRate} key={car.ID} car={car} />
+							))}
+					</div>
+				) : (
+					<div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full md:ml-5'>
+						<h1>Автомобили не найдены</h1>
+					</div>
+				)}
 			</div>
 
 			{/* Лоадер при загрузке данных */}
