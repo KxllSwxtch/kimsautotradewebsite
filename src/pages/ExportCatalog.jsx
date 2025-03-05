@@ -705,14 +705,14 @@ const ExportCatalog = () => {
 							<button
 								type='button'
 								onClick={resetFilters}
-								className='bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded'
+								className='bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded cursor-pointer'
 							>
 								Сбросить фильтр
 							</button>
 							<button
 								type='button'
 								onClick={applyFilters}
-								className='bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded'
+								className='bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded cursor-pointer'
 							>
 								Поиск
 							</button>

@@ -326,7 +326,7 @@ const KazakhstanCalculator = ({ usdKztRate, usdKrwRate, carPriceKRW }) => {
 				<div className='mt-6 text-center'>
 					<button
 						onClick={calculateCosts}
-						className='bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg transition-all'
+						className='bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg transition-all cursor-pointer'
 					>
 						📊 Рассчитать стоимость
 					</button>

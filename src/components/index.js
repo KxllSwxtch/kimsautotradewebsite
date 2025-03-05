@@ -19,6 +19,7 @@ import HowToBuySection from './HowToBuySection'
 import CarCard from './CarCard'
 import FAQItem from './FAQItem'
 import KazakhstanCalculator from './KazakhstanCalculator'
+import KyrgyzstanCalculator from './KyrgyzstanCalculator'
 
 export {
 	Header,
@@ -42,4 +43,5 @@ export {
 	CarCard,
 	FAQItem,
 	KazakhstanCalculator,
+	KyrgyzstanCalculator,
 }

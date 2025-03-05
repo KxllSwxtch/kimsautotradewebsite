@@ -6,7 +6,11 @@ import { Navigation, Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
-import { Loader, KazakhstanCalculator } from '../components'
+import {
+	Loader,
+	KazakhstanCalculator,
+	KyrgyzstanCalculator,
+} from '../components'
 
 const translations = {
 	price: 'Цена в Корее (₩)',
@@ -63,6 +67,7 @@ const ExportCarDetails = () => {
 	const [usdKrwRate, setUsdKrwRate] = useState(null)
 	const [usdRubRate, setUsdRubRate] = useState(null)
 	const [usdKztRate, setUsdKztRate] = useState(null)
+	const [usdEurRate, setUsdEurRate] = useState(null)
 
 	const [car, setCar] = useState(null)
 	const [loading, setLoading] = useState(true)
@@ -107,10 +112,12 @@ const ExportCarDetails = () => {
 					const rate = jsonData['usd']['krw']
 					const usdRubRate = jsonData['usd']['rub']
 					const usdKztRate = jsonData['usd']['kzt']
+					const usdEurRate = jsonData['usd']['eur']
 
 					setUsdKrwRate(rate)
 					setUsdRubRate(usdRubRate)
 					setUsdKztRate(usdKztRate + 3)
+					setUsdEurRate(usdEurRate)
 				}
 			} catch (e) {
 				console.error(e)
@@ -428,6 +435,10 @@ const ExportCarDetails = () => {
 						</strong>
 					</p>
 				</div>
+			)}
+
+			{selectedCountry === 'kyrgyzstan' && (
+				<KyrgyzstanCalculator usdEurRate={usdEurRate} />
 			)}
 
 			{errorCalc && <p className='text-center text-red-500'>{errorCalc}</p>}
