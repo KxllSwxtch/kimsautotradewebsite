@@ -41,7 +41,7 @@ const Header = () => {
 							<img
 								src='https://res.cloudinary.com/pomegranitedesign/image/upload/v1739951461/kimsautotrade/logo.jpg'
 								alt="Kim's Auto Trade"
-								className='h-10 w-auto transition-transform duration-300 hover:scale-105'
+								className='h-15 w-auto transition-transform duration-300 hover:scale-105 mx-auto'
 							/>
 						</Link>
 					</div>

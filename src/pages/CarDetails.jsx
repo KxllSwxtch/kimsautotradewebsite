@@ -1,6 +1,7 @@
+import axios from 'axios'
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import axios from 'axios'
+import { FaInstagram, FaWhatsapp } from 'react-icons/fa'
 
 import { translateCarName } from '../utils'
 import { carModelsTranslation } from '../translations'
@@ -93,22 +94,39 @@ const CarDetails = () => {
 						<h3 className='text-2xl md:text-4xl font-bold text-gray-800 mb-8 text-center'>
 							Контакты для связи
 						</h3>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-							{/* Виталий */}
-							<div className='p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200'>
-								<p className='text-lg font-semibold text-gray-700 mb-1'>
-									Артём
+						<div className='grid grid-cols-1 md:grid-cols-1 gap-6'>
+							<div className='p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200 flex flex-col items-start'>
+								<p className='text-lg font-semibold text-gray-700 mb-1 flex items-center'>
+									<span className='mr-2'>Артём: </span>
+									<a
+										href='tel:+821093441782'
+										className='block text-md text-red-600 hover:text-red-500 transition duration-300 font-light'
+									>
+										+82 10-8282-8062
+									</a>
 								</p>
+
 								<a
-									href='tel:+821093441782'
-									className='block text-xl text-red-600 hover:text-red-500 transition duration-300'
+									href='https://wa.me/821082828062'
+									target='_blank'
+									rel='noopener noreferrer'
+									className='mt-2 flex items-center gap-1 text-green-600 hover:text-green-500 transition duration-300'
 								>
-									+82 10-8282-8062
+									<FaWhatsapp />
+									WhatsApp
+								</a>
+								<a
+									href='https://www.instagram.com/auto_korea_cheongju'
+									target='_blank'
+									rel='noopener noreferrer'
+									className='mt-2 flex items-center gap-1 text-pink-500 hover:text-pink-600 transition duration-300'
+								>
+									<FaInstagram />
+									@auto_korea_cheongju
 								</a>
 							</div>
 
-							{/* Ким Евгений */}
-							<div className='p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200'>
+							{/* <div className='p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200'>
 								<p className='text-lg font-semibold text-gray-700 mb-1'>
 									Рамис
 								</p>
@@ -118,7 +136,7 @@ const CarDetails = () => {
 								>
 									+82 10-8029-6232
 								</a>
-							</div>
+							</div> */}
 						</div>
 					</div>
 
@@ -177,7 +195,6 @@ const CarDetails = () => {
 					Контакты для связи
 				</h3>
 				<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-					{/* Виталий */}
 					<div className='p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200'>
 						<p className='text-lg font-semibold text-gray-700 mb-1'>Артём</p>
 						<a
@@ -188,8 +205,7 @@ const CarDetails = () => {
 						</a>
 					</div>
 
-					{/* Ким Евгений */}
-					<div className='p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200'>
+					{/* <div className='p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200'>
 						<p className='text-lg font-semibold text-gray-700 mb-1'>Рамис</p>
 						<a
 							href='tel:+821042252627'
@@ -197,7 +213,7 @@ const CarDetails = () => {
 						>
 							+82 10-8029-6232
 						</a>
-					</div>
+					</div> */}
 				</div>
 			</div>
 		</div>

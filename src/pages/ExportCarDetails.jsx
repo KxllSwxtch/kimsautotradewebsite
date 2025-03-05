@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Pagination } from 'swiper/modules'
+import { FaInstagram, FaWhatsapp } from 'react-icons/fa'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
@@ -302,9 +303,23 @@ const ExportCarDetails = () => {
 					</a>
 				</p>
 				<p className='text-gray-700'>
-					<strong>Артём:</strong>{' '}
-					<a href='tel:+821082828062' className='text-blue-600 hover:underline'>
-						+82 10-8282-8062
+					<a
+						target='_blank'
+						href='https://wa.me/821080296232'
+						className='text-blue-600 hover:underline flex justify-center items-center'
+					>
+						<FaWhatsapp className='text-green-600 text-xl mr-1' />
+						+82 10-8029-6232
+					</a>
+				</p>
+				<p className='text-gray-700'>
+					<a
+						target='_blank'
+						href='https://www.instagram.com/ramis_auto_korea/'
+						className='text-blue-600 hover:underline flex justify-center items-center'
+					>
+						<FaInstagram className='text-pink-600 text-xl mr-1' />
+						@ramis_auto_korea
 					</a>
 				</p>
 			</div>
