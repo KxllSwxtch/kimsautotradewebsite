@@ -496,9 +496,9 @@ const ExportCatalog = () => {
 	}
 
 	return (
-		<div className='mt-25 md:mt-35 container m-auto'>
+		<div className='mt-30 md:mt-40 container m-auto'>
 			<h1 className='text-3xl font-bold text-center mb-8'>
-				Каталог автомобилей на экспорт
+				Каталог авто на заказ из Кореи
 			</h1>
 
 			<div className='md:flex md:flex-row md:justify-center grid grid-cols-1'>
@@ -557,7 +557,7 @@ const ExportCatalog = () => {
 										className='w-full border p-2 rounded'
 									>
 										<option value=''>Любой</option>
-										{filteredYearsTo.map((year) => (
+										{filteredYearsTo.reverse().map((year) => (
 											<option key={year} value={year}>
 												{year}
 											</option>
@@ -724,7 +724,7 @@ const ExportCatalog = () => {
 				{cars.length > 0 ? (
 					<div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full md:ml-5'>
 						{cars
-							.sort((a, b) => (a.year > b.year ? 1 : -1))
+							.sort((a, b) => (a.YEAR > b.YEAR ? 1 : -1))
 							.map((car) => (
 								<CarCard usdKrwRate={usdKrwRate} key={car.ID} car={car} />
 							))}

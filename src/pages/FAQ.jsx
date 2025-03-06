@@ -30,7 +30,7 @@ const faqData = [
 
 const FAQPage = () => {
 	return (
-		<div className='container mx-auto mt-20 md:mt-30 p-6'>
+		<div className='container mx-auto mt-30 md:mt-40 p-6'>
 			<h1 className='text-3xl font-bold text-center mb-8'>
 				Часто задаваемые вопросы
 			</h1>

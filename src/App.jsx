@@ -9,6 +9,7 @@ import {
 	ExportCatalog,
 	ExportCarDetails,
 	FAQ,
+	Reviews,
 } from './pages'
 import { Header, Footer } from './components'
 

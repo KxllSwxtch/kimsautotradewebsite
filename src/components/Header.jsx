@@ -33,32 +33,26 @@ const Header = () => {
 			} bg-[#000000] shadow-lg`}
 		>
 			{/* Верхняя полоса */}
+			{/* Верхняя полоса */}
 			<div className='bg-[#000000] border-b border-[#333333]'>
-				<div className='max-w-7xl mx-auto px-4 h-18 flex items-center justify-between text-[#ffffff]'>
-					{/* Логотип слева */}
-					<div className='flex items-center gap-2'>
-						<Link to='/'>
-							<img
-								src='https://res.cloudinary.com/pomegranitedesign/image/upload/v1739951461/kimsautotrade/logo.jpg'
-								alt="Kim's Auto Trade"
-								className='h-15 w-auto transition-transform duration-300 hover:scale-105 mx-auto'
-							/>
-						</Link>
-					</div>
-					{/* Меню для десктопа */}
-					<nav className='hidden md:flex items-center gap-8'>
-						<Link
-							to='/reviews'
-							className='text-lg font-semibold transition-colors hover:text-[#ff4c4c]'
+				<div className='max-w-7xl mx-auto px-4 h-25 flex items-center justify-between text-[#ffffff]'>
+					{/* Левая часть - меню */}
+					<nav className='hidden md:flex items-center gap-8 flex-1'>
+						<a
+							target='_blank'
+							rel='noopener noreferrer'
+							href='https://www.instagram.com/auto_korea_cheongju'
+							onClick={toggleMenu}
+							className='text-xl font-semibold hover:text-[#ff4c4c] transition-colors duration-300'
 						>
-							Отзывы
-						</Link>
-						<Link
+							Отзывы / Кейсы
+						</a>
+						{/* <Link
 							to='/videos'
 							className='text-lg font-semibold transition-colors hover:text-[#ff4c4c]'
 						>
 							Видео
-						</Link>
+						</Link> */}
 						<Link
 							to='/faq'
 							className='text-lg font-semibold transition-colors hover:text-[#ff4c4c]'
@@ -66,6 +60,50 @@ const Header = () => {
 							Вопросы/ответы
 						</Link>
 					</nav>
+
+					{/* Логотип по центру */}
+					<div className='flex justify-center'>
+						<Link to='/'>
+							<img
+								src='https://res.cloudinary.com/pomegranitedesign/image/upload/v1741231098/kimsautotrade/LOGO_WHITE.jpg'
+								alt="Kim's Auto Trade"
+								className='h-20 w-auto transition-transform duration-300 hover:scale-105'
+							/>
+						</Link>
+					</div>
+
+					{/* Правая часть - иконка мобильного меню */}
+					<div className='hidden md:flex items-center justify-end flex-1'>
+						<p className='flex flex-row items-center'>
+							<span className='flex flex-row items-center mr-1'>
+								<FaWhatsapp className='mr-1' />
+								Артём:
+							</span>
+							<a
+								href='https://wa.me/821082828062'
+								target='_blank'
+								rel='noopener noreferrer'
+								className='font-medium transition-colors hover:text-[#ff4c4c]'
+							>
+								+82 10-8282-8062
+							</a>
+						</p>
+						<p className='flex flex-row items-center ml-4'>
+							<span className='flex flex-row items-center mr-1'>
+								<FaWhatsapp className='mr-1' />
+								Рамис:
+							</span>
+							<a
+								href='https://wa.me/821080296232'
+								target='_blank'
+								rel='noopener noreferrer'
+								className='font-medium transition-colors hover:text-[#ff4c4c]'
+							>
+								+82 10-8029-6232
+							</a>
+						</p>
+					</div>
+
 					{/* Иконка для мобильного меню */}
 					<div className='md:hidden leading-0'>
 						<button onClick={toggleMenu} className='text-[#ffffff]'>
@@ -92,14 +130,8 @@ const Header = () => {
 						>
 							Каталог авто на заказ из Кореи
 						</Link>
-						{/* <Link
-							to='/calculator'
-							className='transition-colors hover:text-[#ff4c4c]'
-						>
-							Калькулятор стоимости
-						</Link> */}
 					</nav>
-					{/* Номера телефонов */}
+					{/* Номера телефонов
 					<div className='hidden md:flex items-center gap-8'>
 						<p className='flex flex-row items-center'>
 							<span className='flex flex-row items-center mr-1'>
@@ -129,7 +161,7 @@ const Header = () => {
 								+82 10-8029-6232
 							</a>
 						</p>
-					</div>
+					</div> */}
 				</div>
 			</div>
 
@@ -173,20 +205,22 @@ const Header = () => {
 
 					{/* Меню навигации */}
 					<nav className='flex flex-col space-y-6'>
-						<Link
-							to='/reviews'
+						<a
+							target='_blank'
+							rel='noopener noreferrer'
+							href='https://www.instagram.com/auto_korea_cheongju'
 							onClick={toggleMenu}
 							className='text-xl font-semibold hover:text-[#ff4c4c] transition-colors duration-300'
 						>
-							Отзывы
-						</Link>
-						<Link
+							Отзывы/Кейсы
+						</a>
+						{/* <Link
 							to='/videos'
 							onClick={toggleMenu}
 							className='text-xl font-semibold hover:text-[#ff4c4c] transition-colors duration-300'
 						>
 							Видео
-						</Link>
+						</Link> */}
 						<Link
 							to='/faq'
 							onClick={toggleMenu}
@@ -199,7 +233,7 @@ const Header = () => {
 							onClick={toggleMenu}
 							className='text-xl font-semibold hover:text-[#ff4c4c] transition-colors duration-300'
 						>
-							Каталог
+							Каталог авто в Корее
 						</Link>
 						<Link
 							to='/export-catalog'

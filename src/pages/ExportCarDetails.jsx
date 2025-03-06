@@ -233,7 +233,7 @@ const ExportCarDetails = () => {
 	const carPriceRub = carPriceUsd * usdRubRate
 
 	return (
-		<div className='container mx-auto mt-20 md:mt-30 p-6 bg-white shadow-lg rounded-lg'>
+		<div className='container mx-auto mt-25 md:mt-40 p-6 bg-white shadow-lg rounded-lg'>
 			<h1 className='text-3xl font-bold text-center mb-6'>
 				{car?.category?.manufacturerEnglishName}{' '}
 				{car?.category?.modelGroupEnglishName} {car?.category?.gradeEnglishName}

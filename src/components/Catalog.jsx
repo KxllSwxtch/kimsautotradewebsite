@@ -433,14 +433,14 @@ const Catalog = () => {
 	}
 
 	return (
-		<div className='p-4 mt-20 md:mt-30  text-secondary-500 min-h-screen'>
+		<div className='p-4 mt-30 md:mt-40  text-secondary-500 min-h-screen'>
 			<h1 className='text-black text-3xl text-center w-full mb-5 font-medium'>
-				Каталог автомобилей в Корее
+				Каталог авто в Корее
 			</h1>
 			{/* Фильтры */}
 			<>
 				{/* Кнопки для выбора страны */}
-				<div className='flex justify-center gap-4 mb-6'>
+				<div className='flex justify-center flex-col md:flex-row items-center gap-4 mb-6'>
 					{[
 						{ label: 'Корейские', value: 'kor', emoji: '🇰🇷' },
 						{ label: 'Иномарки', value: 'foreign', emoji: '🌍' },
@@ -449,8 +449,8 @@ const Catalog = () => {
 							key={value}
 							onClick={() => handleCountryClick(value)}
 							className={`
-								cursor-pointer flex items-center justify-center gap-2 px-6 py-3 text-lg font-semibold rounded-full shadow-md transition-all duration-300
-								border-2 w-40 h-14
+								w-full md:w-auto cursor-pointer flex items-center justify-center gap-2 p-2 text-lg font-semibold rounded-sm shadow-md transition-all duration-300
+								border-2
 								${
 									country === value
 										? 'bg-accent-500 text-secondary-500 border-accent-500 scale-105 shadow-lg'
@@ -935,9 +935,11 @@ const Catalog = () => {
 					</div>
 				) : carList.length > 0 ? (
 					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-						{carList.map((car, idx) => (
-							<CarListItem car={car} key={idx} />
-						))}
+						{carList
+							.sort((a, b) => (a.year > b.year ? -1 : 1))
+							.map((car, idx) => (
+								<CarListItem car={car} key={idx} />
+							))}
 					</div>
 				) : (
 					<Message text='Автомобили не найдены' icon='❌' />

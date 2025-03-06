@@ -79,7 +79,7 @@ const CarDetails = () => {
 	if (loading) return <Loader />
 
 	return (
-		<div className='container mx-auto p-4 max-w-6xl mt-30'>
+		<div className='container mx-auto p-4 max-w-6xl mt-30 md:mt-40'>
 			{/* Основной контейнер с фото слева и информацией справа */}
 			<div className='grid grid-cols-1 md:grid-cols-2 md:gap-10'>
 				{/* Фотографии автомобиля */}
@@ -194,26 +194,49 @@ const CarDetails = () => {
 				<h3 className='text-2xl md:text-4xl font-bold text-gray-800 mb-8 text-center'>
 					Контакты для связи
 				</h3>
-				<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-					<div className='p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200'>
-						<p className='text-lg font-semibold text-gray-700 mb-1'>Артём</p>
+				<div className='grid grid-cols-1 md:grid-cols-1 gap-6'>
+					<div className='p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200 flex flex-col items-start'>
+						<p className='text-lg font-semibold text-gray-700 mb-1 flex items-center'>
+							<span className='mr-2'>Артём: </span>
+							<a
+								href='tel:+821093441782'
+								className='block text-md text-red-600 hover:text-red-500 transition duration-300 font-light'
+							>
+								+82 10-8282-8062
+							</a>
+						</p>
+
 						<a
-							href='tel:+821093441782'
-							className='block text-xl text-red-600 hover:text-red-500 transition duration-300'
+							href='https://wa.me/821082828062'
+							target='_blank'
+							rel='noopener noreferrer'
+							className='mt-2 flex items-center gap-1 text-green-600 hover:text-green-500 transition duration-300'
 						>
-							+82 10-8282-8062
+							<FaWhatsapp />
+							WhatsApp
+						</a>
+						<a
+							href='https://www.instagram.com/auto_korea_cheongju'
+							target='_blank'
+							rel='noopener noreferrer'
+							className='mt-2 flex items-center gap-1 text-pink-500 hover:text-pink-600 transition duration-300'
+						>
+							<FaInstagram />
+							@auto_korea_cheongju
 						</a>
 					</div>
 
 					{/* <div className='p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200'>
-						<p className='text-lg font-semibold text-gray-700 mb-1'>Рамис</p>
-						<a
-							href='tel:+821042252627'
-							className='block text-xl text-red-600 hover:text-red-500 transition duration-300'
-						>
-							+82 10-8029-6232
-						</a>
-					</div> */}
+								<p className='text-lg font-semibold text-gray-700 mb-1'>
+									Рамис
+								</p>
+								<a
+									href='tel:+821042252627'
+									className='block text-xl text-red-600 hover:text-red-500 transition duration-300'
+								>
+									+82 10-8029-6232
+								</a>
+							</div> */}
 				</div>
 			</div>
 		</div>
