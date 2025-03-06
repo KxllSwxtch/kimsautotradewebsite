@@ -24,7 +24,10 @@ const App = () => {
 						<Route path='/catalog' element={<CatalogPage />} />
 						<Route path='/contact' element={<Contact />} />
 						<Route path='/export-catalog' element={<ExportCatalog />} />
-						<Route path='/export-catalog/:carId' element={<ExportCatalog />} />
+						<Route
+							path='/export-catalog/:carId'
+							element={<ExportCarDetails />}
+						/>
 						<Route path='/faq' element={<FAQ />} />
 						<Route path='/car/:carId' element={<CarDetails />} />
 						<Route
