@@ -1,6 +1,6 @@
+import { useEffect, useState } from 'react'
 import Select from 'react-select'
 import axios from 'axios'
-import { useEffect, useState } from 'react'
 import { CarCard, Loader } from '../components'
 import { brandLogos } from '../utils'
 

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import * as cheerio from 'cheerio'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -69,6 +70,7 @@ const ExportCarDetails = () => {
 	const [usdRubRate, setUsdRubRate] = useState(null)
 	const [usdKztRate, setUsdKztRate] = useState(null)
 	const [usdEurRate, setUsdEurRate] = useState(null)
+	const [usdtRubRates, setUsdtRubRates] = useState(null)
 
 	const [car, setCar] = useState(null)
 	const [loading, setLoading] = useState(true)
@@ -128,18 +130,73 @@ const ExportCarDetails = () => {
 		fetchUsdKrwRate()
 	}, [])
 
+	useEffect(() => {
+		const fetchUsdtRubRates = async () => {
+			const url = `https://corsproxy.io/${encodeURIComponent(
+				'https://www.bestchange.ru/action.php?lang=ru',
+			)}`
+
+			try {
+				// Создаем FormData для запроса
+				const formData = new URLSearchParams({
+					action: 'getrates',
+					page: 'rates',
+					from: '91',
+					to: '10',
+					city: '1',
+					type: '',
+					give: '',
+					get: '',
+					commission: '0',
+					light: '0',
+					sort: 'from',
+					range: 'asc',
+					sortm: '0',
+					tsid: '0',
+				})
+
+				// Отправляем POST-запрос
+				const response = await axios.post(url, formData, {
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+					},
+				})
+
+				// Загружаем HTML в cheerio
+				const $ = cheerio.load(response.data)
+
+				// Парсим таблицу
+				const parsedData = []
+				$('tbody tr').each((index, element) => {
+					const row = $(element)
+					const fsText = row.find('td.bi div.fs').text().trim() // Получаем текст из <div class="fs">
+					const formattedFsText = parseFloat(fsText.split(' ')[0])
+
+					if (fsText) parsedData.push(formattedFsText)
+				})
+
+				// Сохраняем в состояние
+				setUsdtRubRates(parsedData)
+			} catch (error) {
+				console.error('Ошибка при получении данных:', error)
+			}
+		}
+
+		fetchUsdtRubRates()
+	}, [])
+
 	// Расчёт под ключ до РФ
 	const handleCalculate = async () => {
 		setLoadingCalc(true)
 		setErrorCalc('')
 
 		// Логика расчёта логистики
-		let logisticsCost = 2040000 // По умолчанию для всех санкционных авто
-		logisticsCost = 2040000 / usdKrwRate
+		let logisticsCostKrw = 2040000 // По умолчанию для всех санкционных авто
+		let logisticsCostUsd = logisticsCostKrw / usdKrwRate
+		let logisticsCostRub = logisticsCostUsd * usdRubRate
 
-		if (car?.spec?.displacement > 2000) logisticsCost = logisticsCost + 200
-
-		const logisticsCostRub = logisticsCost * usdRubRate
+		if (car?.spec?.displacement > 2000)
+			logisticsCostUsd = logisticsCostUsd + 200
 
 		try {
 			const response = await axios.post(
@@ -176,14 +233,21 @@ const ExportCarDetails = () => {
 				data.total2.split(',')[0].split(' ').join(''),
 			)
 
-			const totalWithLogistics = formattedTotal + logisticsCostRub
-			const totalCarWithLogistics = formattedTotal2 + logisticsCostRub
+			const totalWithLogisticsRub = formattedTotal + logisticsCostRub
+			const totalCarWithLogisticsRub = formattedTotal2 + logisticsCostRub
+			const totalCarWithLogisticsUsd = totalCarWithLogisticsRub / usdRubRate
+			const totalCarWithLogisticsUsdt =
+				totalCarWithLogisticsRub / meanUsdtRubRate
 
 			setCalculatedResult({
 				...data,
 				logisticsCostRub,
-				totalWithLogistics,
-				totalCarWithLogistics,
+				logisticsCostKrw,
+				logisticsCostUsd,
+				totalWithLogisticsRub,
+				totalCarWithLogisticsRub,
+				totalCarWithLogisticsUsd,
+				totalCarWithLogisticsUsdt,
 			})
 		} catch (err) {
 			setErrorCalc(err.message)
@@ -231,6 +295,9 @@ const ExportCarDetails = () => {
 		(car?.advertisement?.price * 10000) / usdKrwRate,
 	)
 	const carPriceRub = carPriceUsd * usdRubRate
+
+	const meanUsdtRubRate =
+		usdtRubRates?.reduce((a, b) => a + b, 0) / usdtRubRates?.length + 2
 
 	return (
 		<div className='container mx-auto mt-25 md:mt-40 p-6 bg-white shadow-lg rounded-lg'>
@@ -285,11 +352,23 @@ const ExportCarDetails = () => {
 				<p className='text-gray-600'>
 					<strong>Цвет:</strong> {colorTranslations[car?.spec?.colorName]}
 				</p>
-				<p className='text-gray-800 font-bold text-lg mt-4'>
+
+				<p className='mt-4'>
+					<span className='text-gray-500 text-sm'>
+						USDT -> KRW: ₩{Math.floor(usdKrwRate - 15).toLocaleString()}
+					</span>
+					<br />
+					<span className='text-gray-500 text-sm'>
+						USDT -> RUB: {meanUsdtRubRate.toFixed(2)} ₽
+					</span>
+				</p>
+				<p className='text-gray-800 font-bold text-lg'>
 					<strong>
+						<br />
 						Цена в Корее: <br />
 					</strong>{' '}
-					₩{carPriceKorea.toLocaleString()} | ${carPriceUsd.toLocaleString()}
+					₩{carPriceKorea.toLocaleString()} | ${carPriceUsd.toLocaleString()} |{' '}
+					{Math.round(carPriceRub).toLocaleString()} ₽
 				</p>
 			</div>
 
@@ -397,8 +476,20 @@ const ExportCarDetails = () => {
 				<div className='mt-6 p-5 bg-gray-50 shadow-md rounded-lg text-center'>
 					<h2 className='text-xl font-semibold mb-4'>Расчёт для России</h2>
 					<p className='text-gray-600'>
-						Стоимость автомобиля: {carPriceRub.toLocaleString('ru-RU')} ₽
+						Стоимость автомобиля: ₩{carPriceKorea.toLocaleString()} | $
+						{carPriceUsd.toLocaleString()} |{' '}
+						{Math.round(carPriceRub).toLocaleString()} ₽
 					</p>
+					<br />
+					<p className='text-gray-600'>
+						Расходы по Корее: ₩
+						{calculatedResult?.logisticsCostKrw.toLocaleString()} | $
+						{calculatedResult?.logisticsCostUsd.toLocaleString()} |{' '}
+						{calculatedResult?.logisticsCostRub.toLocaleString()} ₽
+					</p>
+					<br />
+					<br />
+					<h3 className='font-bold text-xl'>Расходы во Владивостоке</h3>
 					<p className='text-gray-600'>
 						Таможенная пошлина: {calculatedResult?.tax?.toLocaleString()} ₽
 					</p>
@@ -412,9 +503,23 @@ const ExportCarDetails = () => {
 						Итого (таможенные платежи во Владивостоке):{' '}
 						{calculatedResult?.total?.toLocaleString()} ₽
 					</p> */}
-					<p className='text-black mt-3 font-medium text-lg w-1/2 mx-auto'>
-						Стоимость автомобиля под ключ во Владивостоке: <br />
-						{calculatedResult?.totalCarWithLogistics?.toLocaleString('ru-RU')} ₽
+					<p className='text-black font-medium text-lg mx-auto mt-10'>
+						Стоимость автомобиля под ключ во Владивостоке: <br />$
+						{Math.round(
+							calculatedResult?.totalCarWithLogisticsUsd,
+							2,
+						).toLocaleString('en-US')}{' '}
+						|{' '}
+						{calculatedResult?.totalCarWithLogisticsRub?.toLocaleString(
+							'ru-RU',
+						)}{' '}
+						₽
+					</p>
+					<p className='text-black font-medium text-lg mx-auto mt-10'>
+						Стоимость автомобиля под ключ во Владивостоке (USDT): <br />$
+						{Math.round(
+							calculatedResult?.totalCarWithLogisticsUsdt,
+						).toLocaleString('en-US')}{' '}
 					</p>
 				</div>
 			)}

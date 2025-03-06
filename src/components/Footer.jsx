@@ -49,15 +49,15 @@ const Footer = () => {
 						<h3 className='text-lg font-semibold'>Контакты</h3>
 						<ul className='mt-2 space-y-2 text-sm'>
 							<li className='transition-colors duration-300 hover:text-accent-500'>
-								Рамис:{' '}
-								<a href='tel:+821080296232' className='underline'>
-									+82 10-8029-6232
-								</a>
-							</li>
-							<li className='transition-colors duration-300 hover:text-accent-500'>
 								Артём:{' '}
 								<a href='tel:+821082828062' className='underline'>
 									+82 10-8282-8062
+								</a>
+							</li>
+							<li className='transition-colors duration-300 hover:text-accent-500'>
+								Рамис:{' '}
+								<a href='tel:+821080296232' className='underline'>
+									+82 10-8029-6232
 								</a>
 							</li>
 						</ul>
