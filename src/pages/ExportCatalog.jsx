@@ -613,6 +613,7 @@ const ExportCatalog = () => {
 										<option value='1598'>1,6</option>
 										<option value='1798'>1,8</option>
 										<option value='1998'>2,0</option>
+										<option value='2198'>2,2</option>
 										<option value='2498'>2,5</option>
 										<option value='2998'>3,0</option>
 										<option value='3498'>3,5</option>
@@ -644,8 +645,8 @@ const ExportCatalog = () => {
 										<option value='3798'>3,8</option>
 										<option value='3498'>3,5</option>
 										<option value='2998'>3,0</option>
-										<option value='2498'>2,5</option>
 										<option value='2198'>2,2</option>
+										<option value='2498'>2,5</option>
 										<option value='1998'>2,0</option>
 										<option value='1798'>1,8</option>
 										<option value='1598'>1,6</option>
