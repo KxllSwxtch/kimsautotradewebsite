@@ -38,12 +38,18 @@ const Header = () => {
 				<div className='max-w-7xl mx-auto px-4 h-25 flex items-center justify-between text-[#ffffff]'>
 					{/* Левая часть - меню */}
 					<nav className='hidden md:flex items-center gap-8 flex-1'>
+						<Link
+							to='/catalog'
+							className='transition-colors hover:text-[#ff4c4c]'
+						>
+							Каталог авто
+						</Link>
 						<a
 							target='_blank'
 							rel='noopener noreferrer'
 							href='https://www.instagram.com/auto_korea_cheongju'
 							onClick={toggleMenu}
-							className='text-xl font-semibold hover:text-[#ff4c4c] transition-colors duration-300'
+							className='text-md font-normal hover:text-[#ff4c4c] transition-colors duration-300'
 						>
 							Отзывы / Кейсы
 						</a>
@@ -55,7 +61,7 @@ const Header = () => {
 						</Link> */}
 						<Link
 							to='/faq'
-							className='text-lg font-semibold transition-colors hover:text-[#ff4c4c]'
+							className='text-md font-normal transition-colors hover:text-[#ff4c4c]'
 						>
 							Вопросы/ответы
 						</Link>
@@ -114,24 +120,18 @@ const Header = () => {
 			</div>
 
 			{/* Нижняя полоса */}
-			<div className='bg-[#000000] hidden md:block'>
-				<div className='max-w-7xl mx-auto px-4 h-12 flex items-center justify-between text-[#ffffff]'>
-					{/* Левое меню */}
-					<nav className='hidden md:flex items-center gap-8 font-semibold'>
-						{/* <Link
+			{/* <div className='bg-[#000000] hidden md:block'>
+				<div className='max-w-7xl mx-auto px-4 h-12 flex items-center justify-between text-[#ffffff]'> */}
+			{/* Левое меню */}
+			{/* <nav className='hidden md:flex items-center gap-8 font-semibold'> */}
+			{/* <Link
 							to='/catalog'
 							className='transition-colors hover:text-[#ff4c4c]'
 						>
 							Каталог авто в Корее
 						</Link> */}
-						<Link
-							to='/catalog'
-							className='transition-colors hover:text-[#ff4c4c]'
-						>
-							Каталог авто
-						</Link>
-					</nav>
-					{/* Номера телефонов
+			{/* </nav> */}
+			{/* Номера телефонов
 					<div className='hidden md:flex items-center gap-8'>
 						<p className='flex flex-row items-center'>
 							<span className='flex flex-row items-center mr-1'>
@@ -162,8 +162,8 @@ const Header = () => {
 							</a>
 						</p>
 					</div> */}
-				</div>
-			</div>
+			{/* </div>
+			</div> */}
 
 			{/* Мобильное меню на весь экран с анимацией справа налево */}
 			<div

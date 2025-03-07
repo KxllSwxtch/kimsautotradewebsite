@@ -62,6 +62,7 @@ const colorTranslations = {
 	금색: 'Золотой',
 	청록색: 'Бирюзовый',
 	기타: 'Другой',
+	쥐색: 'Тёмно-серый',
 }
 
 const ExportCarDetails = () => {
@@ -299,8 +300,10 @@ const ExportCarDetails = () => {
 	const meanUsdtRubRate =
 		usdtRubRates?.reduce((a, b) => a + b, 0) / usdtRubRates?.length + 2
 
+	console.log(car?.spec.colorName)
+
 	return (
-		<div className='container mx-auto mt-25 md:mt-40 p-6 bg-white shadow-lg rounded-lg'>
+		<div className='container mx-auto mt-25 md:mt-25 p-6 bg-white shadow-lg rounded-lg'>
 			<h1 className='text-3xl font-bold text-center mb-6'>
 				{car?.category?.manufacturerEnglishName}{' '}
 				{car?.category?.modelGroupEnglishName} {car?.category?.gradeEnglishName}
