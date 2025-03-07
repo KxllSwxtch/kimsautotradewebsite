@@ -380,34 +380,76 @@ const ExportCarDetails = () => {
 			</div>
 
 			{/* Контакты менеджеров */}
-			<div className='mt-6 p-5 bg-white shadow-md rounded-lg text-center'>
-				<h2 className='text-xl font-semibold mb-4'>Контакты менеджеров</h2>
-				<p className='text-gray-700'>
-					<strong>Рамис:</strong>{' '}
-					<a href='tel:+821080296232' className='text-blue-600 hover:underline'>
-						+82 10-8029-6232
-					</a>
-				</p>
-				<p className='text-gray-700'>
-					<a
-						target='_blank'
-						href='https://wa.me/821080296232'
-						className='text-blue-600 hover:underline flex justify-center items-center'
-					>
-						<FaWhatsapp className='text-green-600 text-xl mr-1' />
-						+82 10-8029-6232
-					</a>
-				</p>
-				<p className='text-gray-700'>
-					<a
-						target='_blank'
-						href='https://www.instagram.com/ramis_auto_korea/'
-						className='text-blue-600 hover:underline flex justify-center items-center'
-					>
-						<FaInstagram className='text-pink-600 text-xl mr-1' />
-						@ramis_auto_korea
-					</a>
-				</p>
+			<div className='mt-6 p-5 bg-white shadow-md rounded-lg text-center flex justify-center gap-20'>
+				<div>
+					<h2 className='text-xl font-semibold mb-4'>
+						Для заказа автомобиля из Кореи
+					</h2>
+					<p className='text-gray-700'>
+						<strong>Рамис:</strong>{' '}
+						<a
+							href='tel:+821080296232'
+							className='text-blue-600 hover:underline'
+						>
+							+82 10-8029-6232
+						</a>
+					</p>
+					<p className='text-gray-700'>
+						<a
+							target='_blank'
+							href='https://wa.me/821080296232'
+							className='text-blue-600 hover:underline flex justify-center items-center'
+						>
+							<FaWhatsapp className='text-green-600 text-xl mr-1' />
+							+82 10-8029-6232
+						</a>
+					</p>
+					<p className='text-gray-700'>
+						<a
+							target='_blank'
+							href='https://www.instagram.com/ramis_auto_korea/'
+							className='text-blue-600 hover:underline flex justify-center items-center'
+						>
+							<FaInstagram className='text-pink-600 text-xl mr-1' />
+							@ramis_auto_korea
+						</a>
+					</p>
+				</div>
+
+				<div>
+					<h2 className='text-xl font-semibold mb-4'>
+						Для приобретения авто внутри Кореи
+					</h2>
+					<p className='text-gray-700'>
+						<strong>Артём:</strong>{' '}
+						<a
+							href='tel:+821080296232'
+							className='text-blue-600 hover:underline'
+						>
+							+82 10-8282-8062
+						</a>
+					</p>
+					<p className='text-gray-700'>
+						<a
+							target='_blank'
+							href='https://wa.me/821082828062'
+							className='text-blue-600 hover:underline flex justify-center items-center'
+						>
+							<FaWhatsapp className='text-green-600 text-xl mr-1' />
+							+82 10-8282-8062
+						</a>
+					</p>
+					<p className='text-gray-700'>
+						<a
+							target='_blank'
+							href='https://www.instagram.com/auto_korea_cheongju'
+							className='text-blue-600 hover:underline flex justify-center items-center'
+						>
+							<FaInstagram className='text-pink-600 text-xl mr-1' />
+							@auto_korea_cheongju
+						</a>
+					</p>
+				</div>
 			</div>
 
 			{/* Выбор страны для расчёта */}

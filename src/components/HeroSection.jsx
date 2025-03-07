@@ -32,16 +32,16 @@ const HeroSection = () => {
 					<div className='flex flex-col justify-center md:block'>
 						<Link
 							to='/catalog'
-							className='text-center md:mr-5 mb-5 inline-block bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-full transition duration-300'
+							className='text-center md:mr-5 mb-5 inline-block bg-red-600 hover:bg-red-700 text-white font-semibold p-3 rounded-sm transition duration-300'
 						>
-							Купить в Корее
+							Смотреть каталог автомобилей
 						</Link>
-						<Link
+						{/* <Link
 							to='/export-catalog'
 							className='text-center inline-block bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-full transition duration-300'
 						>
 							Заказать из Кореи
-						</Link>
+						</Link> */}
 					</div>
 				</div>
 

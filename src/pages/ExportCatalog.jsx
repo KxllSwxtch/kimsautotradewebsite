@@ -491,7 +491,7 @@ const ExportCatalog = () => {
 		}
 
 		return (
-			<div className='mb-4'>
+			<div>
 				<label className='block text-gray-700 font-semibold mb-2'>Марка</label>
 				<Select
 					options={brandOptions}
@@ -515,13 +515,13 @@ const ExportCatalog = () => {
 
 	return (
 		<div className='mt-30 md:mt-40 container m-auto'>
-			<h1 className='text-3xl font-bold text-center mb-8'>
+			<h1 className='text-3xl font-bold text-center mb-5'>
 				Каталог авто в Корее
 			</h1>
 
 			<div className='md:flex md:flex-row md:justify-center grid grid-cols-1'>
 				{/* Форма фильтрации */}
-				<div className='bg-white p-5 rounded-lg shadow-md mb-8 md:w-1/3'>
+				<div className='bg-white p-5 rounded-lg shadow-md md:w-1/3'>
 					<form>
 						<div className='grid grid-cols-1 md:grid-cols-1 gap-4'>
 							<div>
