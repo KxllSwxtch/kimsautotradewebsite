@@ -118,17 +118,17 @@ const Header = () => {
 				<div className='max-w-7xl mx-auto px-4 h-12 flex items-center justify-between text-[#ffffff]'>
 					{/* Левое меню */}
 					<nav className='hidden md:flex items-center gap-8 font-semibold'>
-						<Link
+						{/* <Link
 							to='/catalog'
 							className='transition-colors hover:text-[#ff4c4c]'
 						>
 							Каталог авто в Корее
-						</Link>
+						</Link> */}
 						<Link
-							to='/export-catalog'
+							to='/catalog'
 							className='transition-colors hover:text-[#ff4c4c]'
 						>
-							Каталог авто на заказ из Кореи
+							Каталог авто
 						</Link>
 					</nav>
 					{/* Номера телефонов
@@ -228,19 +228,19 @@ const Header = () => {
 						>
 							Вопросы/ответы
 						</Link>
-						<Link
+						{/* <Link
 							to='/catalog'
 							onClick={toggleMenu}
 							className='text-xl font-semibold hover:text-[#ff4c4c] transition-colors duration-300'
 						>
 							Каталог авто в Корее
-						</Link>
+						</Link> */}
 						<Link
-							to='/export-catalog'
+							to='/catalog'
 							onClick={toggleMenu}
 							className='text-xl font-semibold hover:text-[#ff4c4c] transition-colors duration-300'
 						>
-							Каталог авто на заказ из Кореи
+							Каталог авто
 						</Link>
 						{/* <Link
 							to='/calculator'

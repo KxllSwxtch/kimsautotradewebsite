@@ -12,6 +12,7 @@ import {
 	Loader,
 	KazakhstanCalculator,
 	KyrgyzstanCalculator,
+	CarInspection,
 } from '../components'
 
 const translations = {
@@ -89,6 +90,7 @@ const ExportCarDetails = () => {
 				const response = await axios.get(
 					`https://api.encar.com/v1/readside/vehicle/${carId}`,
 				)
+
 				setCar(response.data)
 			} catch (err) {
 				setError('Ошибка при загрузке данных')
@@ -98,9 +100,7 @@ const ExportCarDetails = () => {
 			}
 		}
 
-		if (carId) {
-			fetchCar()
-		}
+		if (carId) fetchCar()
 	}, [carId])
 
 	useEffect(() => {
@@ -352,19 +352,23 @@ const ExportCarDetails = () => {
 				<p className='text-gray-600'>
 					<strong>Цвет:</strong> {colorTranslations[car?.spec?.colorName]}
 				</p>
+				<>
+					<CarInspection car={car} />
+				</>
 
-				<p className='mt-4'>
+				<p className='mt-10 mb-2'>
+					<span>Текущие курсы:</span>
+					<br />
 					<span className='text-gray-500 text-sm'>
-						USDT -> KRW: ₩{Math.floor(usdKrwRate - 15).toLocaleString()}
+						&nbsp; USDT - KRW: ₩{Math.floor(usdKrwRate - 15).toLocaleString()}
 					</span>
 					<br />
 					<span className='text-gray-500 text-sm'>
-						USDT -> RUB: {meanUsdtRubRate.toFixed(2)} ₽
+						&nbsp; USDT - RUB: {meanUsdtRubRate.toFixed(2)} ₽
 					</span>
 				</p>
 				<p className='text-gray-800 font-bold text-lg'>
 					<strong>
-						<br />
 						Цена в Корее: <br />
 					</strong>{' '}
 					₩{carPriceKorea.toLocaleString()} | ${carPriceUsd.toLocaleString()} |{' '}

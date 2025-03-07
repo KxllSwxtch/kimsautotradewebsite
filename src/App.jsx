@@ -21,9 +21,9 @@ const App = () => {
 					<Routes>
 						<Route path='/' element={<Home />} />
 						<Route path='/about' element={<About />} />
-						<Route path='/catalog' element={<CatalogPage />} />
+						{/* <Route path='/catalog' element={<CatalogPage />} /> */}
 						<Route path='/contact' element={<Contact />} />
-						<Route path='/export-catalog' element={<ExportCatalog />} />
+						<Route path='/catalog' element={<ExportCatalog />} />
 						<Route
 							path='/export-catalog/:carId'
 							element={<ExportCarDetails />}

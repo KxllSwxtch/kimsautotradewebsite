@@ -5,6 +5,7 @@ import { CarCard, Loader } from '../components'
 import { brandLogos } from '../utils'
 
 const ExportCatalog = () => {
+	const [sortOption, setSortOption] = useState('') // Сортировка
 	const [usdKrwRate, setUsdKrwRate] = useState(null)
 	const [cars, setCars] = useState([])
 	const [loading, setLoading] = useState(true)
@@ -115,13 +116,24 @@ const ExportCatalog = () => {
 		'2025',
 	]
 
+	const sortOptions = [
+		{ value: '', label: 'Сортировать по' },
+		{ value: 'FINISH-ASC', label: 'По возрастанию цены в вонах' },
+		{ value: 'FINISH-DESC', label: 'По убыванию цены в вонах' },
+		{ value: 'YEAR-ASC', label: 'Год по возрастанию' },
+		{ value: 'YEAR-DESC', label: 'Год по убыванию' },
+		{ value: 'MILEAGE-ASC', label: 'Пробег по возрастанию' },
+		{ value: 'MILEAGE-DESC', label: 'Пробег по убыванию' },
+		{ value: 'CREATE_AT-DESC', label: 'По дате добавления' },
+	]
+
 	// Функция для получения данных с API
 	const fetchCars = async (pageNumber = 1) => {
 		try {
 			setLoading(true)
 			const response = await axios.get(
 				`https://corsproxy.io/${encodeURIComponent(
-					`https://api.darvin.digital/api.php?method=get_cars&marka_id=${filters.brand}&model_id=${filters.model}&year_from=${filters.yearFrom}&year_to=${filters.yearTo}&mileage_from=${filters.mileageFrom}&mileage_to=${filters.mileageTo}&engine_from=${filters.capacityFrom}&engine_to=${filters.capacityTo}&price_from=${filters.priceFrom}&price_to=${filters.priceTo}&sort=&page=${pageNumber}`,
+					`https://api.darvin.digital/api.php?method=get_cars&marka_id=${filters.brand}&model_id=${filters.model}&year_from=${filters.yearFrom}&year_to=${filters.yearTo}&mileage_from=${filters.mileageFrom}&mileage_to=${filters.mileageTo}&engine_from=${filters.capacityFrom}&engine_to=${filters.capacityTo}&price_from=${filters.priceFrom}&price_to=${filters.priceTo}&sort=${sortOption}&page=${pageNumber}`,
 				)}`,
 			)
 			const newCars = response.data
@@ -139,7 +151,7 @@ const ExportCatalog = () => {
 		try {
 			const response = await axios.get(
 				`https://corsproxy.io/${encodeURIComponent(
-					`https://api.darvin.digital/api.php?method=get_cars_count&marka_id=${filters.brand}&model_id=${filters.model}&year_from=${filters.yearFrom}&year_to=${filters.yearTo}&mileage_from=${filters.mileageFrom}&mileage_to=${filters.mileageTo}&engine_from=${filters.capacityFrom}&engine_to=${filters.capacityTo}&price_from=${filters.priceFrom}&price_to=${filters.priceTo}&sort=`,
+					`https://api.darvin.digital/api.php?method=get_cars_count&marka_id=${filters.brand}&model_id=${filters.model}&year_from=${filters.yearFrom}&year_to=${filters.yearTo}&mileage_from=${filters.mileageFrom}&mileage_to=${filters.mileageTo}&engine_from=${filters.capacityFrom}&engine_to=${filters.capacityTo}&price_from=${filters.priceFrom}&price_to=${filters.priceTo}&sort=${sortOption}`,
 				)}`,
 			)
 
@@ -339,8 +351,8 @@ const ExportCatalog = () => {
 			priceTo: '',
 		})
 		setCurrentPage(1)
+		setSortOption('')
 		setModels([])
-		fetchCars()
 	}
 
 	// Генерация кнопок пагинации
@@ -435,6 +447,12 @@ const ExportCatalog = () => {
 		)
 	}
 
+	const handleSortChange = (e) => {
+		setSortOption(e.target.value)
+		setCurrentPage(1) // Сбрасываем страницу на первую
+		fetchCars(1) // Загружаем автомобили с новой сортировкой
+	}
+
 	// Кастомный рендер опций
 	const customSingleValue = ({ data }) => (
 		<div className='flex items-center'>
@@ -498,7 +516,7 @@ const ExportCatalog = () => {
 	return (
 		<div className='mt-30 md:mt-40 container m-auto'>
 			<h1 className='text-3xl font-bold text-center mb-8'>
-				Каталог авто на заказ из Кореи
+				Каталог авто в Корее
 			</h1>
 
 			<div className='md:flex md:flex-row md:justify-center grid grid-cols-1'>
@@ -703,6 +721,24 @@ const ExportCatalog = () => {
 							</div>
 						</div>
 
+						<div className='mb-4'>
+							<label className='block text-gray-700 font-semibold mb-2'>
+								Сортировка
+							</label>
+							<select
+								name='sort'
+								value={sortOption}
+								onChange={handleSortChange}
+								className='w-full border p-2 rounded'
+							>
+								{sortOptions.map((option) => (
+									<option key={option.value} value={option.value}>
+										{option.label}
+									</option>
+								))}
+							</select>
+						</div>
+
 						<div className='flex justify-between mt-4'>
 							<button
 								type='button'
@@ -725,11 +761,9 @@ const ExportCatalog = () => {
 				{/* Сетка карточек автомобилей */}
 				{cars.length > 0 ? (
 					<div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full md:ml-5'>
-						{cars
-							.sort((a, b) => (a.YEAR > b.YEAR ? 1 : -1))
-							.map((car) => (
-								<CarCard usdKrwRate={usdKrwRate} key={car.ID} car={car} />
-							))}
+						{cars.map((car) => (
+							<CarCard usdKrwRate={usdKrwRate} key={car.ID} car={car} />
+						))}
 					</div>
 				) : (
 					<div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full md:ml-5'>
