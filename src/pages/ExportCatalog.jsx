@@ -450,7 +450,6 @@ const ExportCatalog = () => {
 	const handleSortChange = (e) => {
 		setSortOption(e.target.value)
 		setCurrentPage(1) // Сбрасываем страницу на первую
-		fetchCars(1) // Загружаем автомобили с новой сортировкой
 	}
 
 	// Кастомный рендер опций
