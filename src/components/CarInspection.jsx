@@ -36,10 +36,9 @@ const CarInspection = ({ car }) => {
 
 	if (loading)
 		return <p className='text-center text-gray-500'>Загрузка данных...</p>
-	if (error) return <p className='text-center text-red-500'>{error}</p>
-	if (!inspectionData)
+	if (error || !inspectionData)
 		return (
-			<p className='text-center text-gray-600'>
+			<p className='text-center text-gray-600 mt-10'>
 				Нет данных о страховых выплатах
 			</p>
 		)

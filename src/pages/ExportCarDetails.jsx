@@ -380,7 +380,7 @@ const ExportCarDetails = () => {
 			</div>
 
 			{/* Контакты менеджеров */}
-			<div className='mt-6 p-5 bg-white shadow-md rounded-lg text-center flex justify-center gap-20'>
+			<div className='mt-6 p-5 bg-white shadow-md rounded-lg text-center flex justify-center gap-20 flex-col md:flex-row'>
 				<div>
 					<h2 className='text-xl font-semibold mb-4'>
 						Для заказа автомобиля из Кореи
