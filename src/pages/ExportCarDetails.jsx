@@ -133,9 +133,7 @@ const ExportCarDetails = () => {
 
 	useEffect(() => {
 		const fetchUsdtRubRates = async () => {
-			const url = `https://corsproxy.io/${encodeURIComponent(
-				'https://www.bestchange.ru/action.php?lang=ru',
-			)}`
+			const url = `https://corsproxy.io/?url=https://www.bestchange.ru/action.php?lang=ru`
 
 			try {
 				// Создаем FormData для запроса
