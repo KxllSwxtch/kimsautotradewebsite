@@ -208,10 +208,11 @@ const ExportCatalog = () => {
 	const fetchModels = async (brandId) => {
 		try {
 			const response = await axios.get(
-				`https://corsproxy.io/${encodeURIComponent(
+				`https://corsproxy.io/?url=${encodeURIComponent(
 					`https://api.darvin.digital/api.php?method=get_model&marka_id=${brandId}`,
 				)}`,
 			)
+
 			setModels(response.data)
 		} catch (error) {
 			console.error('Ошибка при загрузке моделей:', error)
