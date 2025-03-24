@@ -68,12 +68,12 @@ const Header = () => {
 					</nav>
 
 					{/* Логотип по центру */}
-					<div className='flex justify-center'>
+					<div className='flex justify-center m-auto'>
 						<Link to='/'>
 							<img
-								src='https://res.cloudinary.com/pomegranitedesign/image/upload/v1741231098/kimsautotrade/LOGO_WHITE.jpg'
+								src='https://res.cloudinary.com/pomegranitedesign/image/upload/v1739951461/kimsautotrade/logo.jpg'
 								alt="Kim's Auto Trade"
-								className='h-20 w-auto transition-transform duration-300 hover:scale-105'
+								className='h-23 w-auto transition-transform duration-300 hover:scale-105'
 							/>
 						</Link>
 					</div>
