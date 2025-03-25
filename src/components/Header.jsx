@@ -9,14 +9,19 @@ const Header = () => {
 
 	const toggleMenu = () => setMenuOpen(!menuOpen)
 
-	// Логика для появления/скрытия Header при прокрутке
 	useEffect(() => {
+		// Если текущий путь не '/', сразу показываем header и не добавляем обработчик прокрутки
+		if (window.location.pathname !== '/') {
+			setShowHeader(true)
+			return
+		}
+
 		const handleScroll = () => {
 			if (window.scrollY > lastScrollY) {
-				// Прокрутка вниз
+				// Прокрутка вниз — скрываем header
 				setShowHeader(false)
 			} else {
-				// Прокрутка вверх
+				// Прокрутка вверх — показываем header
 				setShowHeader(true)
 			}
 			setLastScrollY(window.scrollY)
@@ -194,6 +199,7 @@ const Header = () => {
 								alt="Kim's Auto Trade"
 								className='h-10 w-auto transition-transform duration-300 hover:scale-105'
 							/>
+							<h3>Южнокорейская Автомобильная Компания</h3>
 						</Link>
 						<button onClick={toggleMenu} className='text-[#ffffff]'>
 							<FaTimes
@@ -205,6 +211,13 @@ const Header = () => {
 
 					{/* Меню навигации */}
 					<nav className='flex flex-col space-y-6'>
+						<Link
+							to='/catalog'
+							onClick={toggleMenu}
+							className='text-xl font-semibold hover:text-[#ff4c4c] transition-colors duration-300'
+						>
+							Каталог авто
+						</Link>
 						<a
 							target='_blank'
 							rel='noopener noreferrer'
@@ -235,13 +248,6 @@ const Header = () => {
 						>
 							Каталог авто в Корее
 						</Link> */}
-						<Link
-							to='/catalog'
-							onClick={toggleMenu}
-							className='text-xl font-semibold hover:text-[#ff4c4c] transition-colors duration-300'
-						>
-							Каталог авто
-						</Link>
 						{/* <Link
 							to='/calculator'
 							onClick={toggleMenu}

@@ -510,7 +510,7 @@ const ExportCatalog = () => {
 	}
 
 	return (
-		<div className='mt-30 md:mt-40 container m-auto'>
+		<div className='mt-30 md:mt-30 container m-auto'>
 			<h1 className='text-3xl font-bold text-center mb-5'>
 				Каталог авто в Корее
 			</h1>
