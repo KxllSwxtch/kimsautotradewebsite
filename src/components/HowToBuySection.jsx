@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const steps = [
 	{
@@ -123,78 +123,94 @@ ${comment || 'Нет'}`
 			</div>
 
 			{/* Модальное окно */}
-			{isModalOpen && (
-				<div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-					<div className='bg-white p-6 rounded-lg shadow-lg max-w-md w-full'>
-						<h2 className='text-xl font-bold text-center mb-4'>
-							Оставить заявку
-						</h2>
-						<label className='block mb-2 text-gray-700'>Имя*</label>
-						<input
-							type='text'
-							className='w-full p-2 border rounded-md mb-4'
-							value={name}
-							onChange={(e) => setName(e.target.value)}
-							required
-						/>
+			<AnimatePresence>
+				{isModalOpen && (
+					<motion.div
+						className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						exit={{ opacity: 0 }}
+						transition={{ duration: 0.3 }}
+					>
+						<motion.div
+							className='bg-white p-6 rounded-lg shadow-lg max-w-lg w-full'
+							initial={{ scale: 0.9, opacity: 0 }}
+							animate={{ scale: 1, opacity: 1 }}
+							exit={{ scale: 0.9, opacity: 0 }}
+							transition={{ duration: 0.3 }}
+						>
+							<h2 className='text-xl font-bold text-center mb-4'>
+								Оставить заявку
+							</h2>
+							<label className='block mb-2 text-gray-700'>Имя*</label>
+							<input
+								type='text'
+								className='w-full p-2 border rounded-md mb-4'
+								value={name}
+								onChange={(e) => setName(e.target.value)}
+								required
+							/>
 
-						<label className='block mb-2 text-gray-700'>Номер телефона*</label>
-						<input
-							type='tel'
-							className='w-full p-2 border rounded-md mb-4'
-							value={phone}
-							onChange={(e) => setPhone(e.target.value)}
-							required
-						/>
+							<label className='block mb-2 text-gray-700'>
+								Номер телефона*
+							</label>
+							<input
+								type='tel'
+								className='w-full p-2 border rounded-md mb-4'
+								value={phone}
+								onChange={(e) => setPhone(e.target.value)}
+								required
+							/>
 
-						<div className='flex flex-col md:flex-row gap-2 mb-4'>
-							<button
-								className={`flex-1 py-2 px-4 rounded-md ${
-									orderType === 'Купить авто в Корее'
-										? 'bg-green-600 text-white'
-										: 'bg-gray-200 text-gray-700'
-								}`}
-								onClick={() => setOrderType('Купить авто в Корее')}
-							>
-								Купить авто в Корее
-							</button>
-							<button
-								className={`flex-1 py-2 px-4 rounded-md ${
-									orderType === 'Заказать авто из Кореи'
-										? 'bg-green-600 text-white'
-										: 'bg-gray-200 text-gray-700'
-								}`}
-								onClick={() => setOrderType('Заказать авто из Кореи')}
-							>
-								Заказать авто из Кореи
-							</button>
-						</div>
+							<div className='flex flex-col md:flex-row gap-2 mb-4'>
+								<button
+									className={`flex-1 py-2 px-4 rounded-md ${
+										orderType === 'Купить авто в Корее'
+											? 'bg-green-600 text-white'
+											: 'bg-gray-200 text-gray-700'
+									}`}
+									onClick={() => setOrderType('Купить авто в Корее')}
+								>
+									Купить авто в Корее
+								</button>
+								<button
+									className={`flex-1 py-2 px-4 rounded-md ${
+										orderType === 'Заказать авто из Кореи'
+											? 'bg-green-600 text-white'
+											: 'bg-gray-200 text-gray-700'
+									}`}
+									onClick={() => setOrderType('Заказать авто из Кореи')}
+								>
+									Заказать авто из Кореи
+								</button>
+							</div>
 
-						<label className='block mb-2 text-gray-700'>Комментарий</label>
-						<textarea
-							className='w-full p-2 border rounded-md mb-4'
-							rows='3'
-							value={comment}
-							onChange={(e) => setComment(e.target.value)}
-						></textarea>
+							<label className='block mb-2 text-gray-700'>Комментарий</label>
+							<textarea
+								className='w-full p-2 border rounded-md mb-4'
+								rows='3'
+								value={comment}
+								onChange={(e) => setComment(e.target.value)}
+							></textarea>
 
-						<div className='flex justify-between'>
-							<button
-								onClick={() => setIsModalOpen(false)}
-								className='bg-gray-300 px-4 py-2 rounded-md'
-							>
-								Отмена
-							</button>
-							<button
-								onClick={handleSubmit}
-								className='bg-green-600 text-white px-4 py-2 rounded-md'
-							>
-								Отправить
-							</button>
-						</div>
-					</div>
-				</div>
-			)}
+							<div className='flex justify-between'>
+								<button
+									onClick={() => setIsModalOpen(false)}
+									className='bg-gray-300 hover:bg-gray-400 transition-colors duration-300 px-4 py-2 rounded-md cursor-pointer'
+								>
+									Отмена
+								</button>
+								<button
+									onClick={handleSubmit}
+									className='bg-green-500 hover:bg-green-600 transition-colors duration-300 text-white px-4 py-2 rounded-md cursor-pointer'
+								>
+									Отправить
+								</button>
+							</div>
+						</motion.div>
+					</motion.div>
+				)}
+			</AnimatePresence>
 		</section>
 	)
 }

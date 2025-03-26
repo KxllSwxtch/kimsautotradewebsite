@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 const HeroSection = () => {
 	return (
-		<section className='bg-[#F7F8FA] py-16 mt-15 md:mt-30'>
+		<section className='bg-[#F7F8FA] py-16 mt-20'>
 			<div className='max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center'>
 				{/* Левая колонка: Заголовок, список и кнопка */}
 				<div className='md:w-1/2 space-y-6 md:pr-8'>

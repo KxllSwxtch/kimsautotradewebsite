@@ -38,9 +38,8 @@ const Header = () => {
 			} bg-[#000000] shadow-lg`}
 		>
 			{/* Верхняя полоса */}
-			{/* Верхняя полоса */}
 			<div className='bg-[#000000] border-b border-[#333333]'>
-				<div className='max-w-7xl mx-auto px-4 h-25 flex items-center justify-between text-[#ffffff]'>
+				<div className='max-w-7xl mx-auto px-4 h-30 flex items-center justify-between text-[#ffffff]'>
 					{/* Левая часть - меню */}
 					<nav className='hidden md:flex items-center gap-8 flex-1'>
 						<Link
@@ -53,7 +52,6 @@ const Header = () => {
 							target='_blank'
 							rel='noopener noreferrer'
 							href='https://www.instagram.com/auto_korea_cheongju'
-							onClick={toggleMenu}
 							className='text-md font-normal hover:text-[#ff4c4c] transition-colors duration-300'
 						>
 							Отзывы / Кейсы
@@ -76,9 +74,9 @@ const Header = () => {
 					<div className='flex justify-center m-auto'>
 						<Link to='/'>
 							<img
-								src='https://res.cloudinary.com/pomegranitedesign/image/upload/v1739951461/kimsautotrade/logo.jpg'
+								src='https://res.cloudinary.com/pomegranitedesign/image/upload/v1742946463/kimsautotrade/logo_new.png'
 								alt="Kim's Auto Trade"
-								className='h-23 w-auto transition-transform duration-300 hover:scale-105'
+								className='h-25 w-auto transition-transform duration-300 hover:scale-105'
 							/>
 						</Link>
 					</div>
@@ -124,52 +122,6 @@ const Header = () => {
 				</div>
 			</div>
 
-			{/* Нижняя полоса */}
-			{/* <div className='bg-[#000000] hidden md:block'>
-				<div className='max-w-7xl mx-auto px-4 h-12 flex items-center justify-between text-[#ffffff]'> */}
-			{/* Левое меню */}
-			{/* <nav className='hidden md:flex items-center gap-8 font-semibold'> */}
-			{/* <Link
-							to='/catalog'
-							className='transition-colors hover:text-[#ff4c4c]'
-						>
-							Каталог авто в Корее
-						</Link> */}
-			{/* </nav> */}
-			{/* Номера телефонов
-					<div className='hidden md:flex items-center gap-8'>
-						<p className='flex flex-row items-center'>
-							<span className='flex flex-row items-center mr-1'>
-								<FaWhatsapp className='mr-1' />
-								Артём:
-							</span>
-							<a
-								href='https://wa.me/821082828062'
-								target='_blank'
-								rel='noopener noreferrer'
-								className='font-medium transition-colors hover:text-[#ff4c4c]'
-							>
-								+82 10-8282-8062
-							</a>
-						</p>
-						<p className='flex flex-row items-center'>
-							<span className='flex flex-row items-center mr-1'>
-								<FaWhatsapp className='mr-1' />
-								Рамис:
-							</span>
-							<a
-								href='https://wa.me/821080296232'
-								target='_blank'
-								rel='noopener noreferrer'
-								className='font-medium transition-colors hover:text-[#ff4c4c]'
-							>
-								+82 10-8029-6232
-							</a>
-						</p>
-					</div> */}
-			{/* </div>
-			</div> */}
-
 			{/* Мобильное меню на весь экран с анимацией справа налево */}
 			<div
 				className={`fixed top-0 right-0 w-full h-screen bg-[#1a1a1a] text-[#ffffff] z-50 shadow-2xl transform transition-transform duration-500 ease-in-out ${
@@ -195,7 +147,7 @@ const Header = () => {
 					<div className='flex justify-between items-center mb-6'>
 						<Link to='/' onClick={toggleMenu}>
 							<img
-								src='https://res.cloudinary.com/pomegranitedesign/image/upload/v1739951461/kimsautotrade/logo.jpg'
+								src='https://res.cloudinary.com/pomegranitedesign/image/upload/v1742946463/kimsautotrade/logo_new.png'
 								alt="Kim's Auto Trade"
 								className='h-10 w-auto transition-transform duration-300 hover:scale-105'
 							/>
