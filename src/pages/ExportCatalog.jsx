@@ -132,7 +132,7 @@ const ExportCatalog = () => {
 		try {
 			setLoading(true)
 			const response = await axios.get(
-				`https://corsproxy.io/?url=${encodeURIComponent(
+				`https://corsproxy.io/?key=28174bc7&url=${encodeURIComponent(
 					`https://api.darvin.digital/api.php?method=get_cars&marka_id=${filters.brand}&model_id=${filters.model}&year_from=${filters.yearFrom}&year_to=${filters.yearTo}&mileage_from=${filters.mileageFrom}&mileage_to=${filters.mileageTo}&engine_from=${filters.capacityFrom}&engine_to=${filters.capacityTo}&price_from=${filters.priceFrom}&price_to=${filters.priceTo}&sort=${sortOption}&page=${pageNumber}`,
 				)}`,
 			)
@@ -150,7 +150,7 @@ const ExportCatalog = () => {
 	const fetchTotalCars = async () => {
 		try {
 			const response = await axios.get(
-				`https://corsproxy.io/?url=${encodeURIComponent(
+				`https://corsproxy.io/?key=28174bc&url=${encodeURIComponent(
 					`https://api.darvin.digital/api.php?method=get_cars_count&marka_id=${filters.brand}&model_id=${filters.model}&year_from=${filters.yearFrom}&year_to=${filters.yearTo}&mileage_from=${filters.mileageFrom}&mileage_to=${filters.mileageTo}&engine_from=${filters.capacityFrom}&engine_to=${filters.capacityTo}&price_from=${filters.priceFrom}&price_to=${filters.priceTo}&sort=${sortOption}`,
 				)}`,
 			)
