@@ -132,7 +132,9 @@ const ExportCatalog = () => {
 		try {
 			setLoading(true)
 			const response = await axios.get(
-				`https://corsproxy.io/?url=${`https://api.darvin.digital/api.php?method=get_cars&marka_id=${filters.brand}&model_id=${filters.model}&year_from=${filters.yearFrom}&year_to=${filters.yearTo}&mileage_from=${filters.mileageFrom}&mileage_to=${filters.mileageTo}&engine_from=${filters.capacityFrom}&engine_to=${filters.capacityTo}&price_from=${filters.priceFrom}&price_to=${filters.priceTo}&sort=${sortOption}&page=${pageNumber}`}`,
+				`https://corsproxy.io/?url=${encodeURIComponent(
+					`https://api.darvin.digital/api.php?method=get_cars&marka_id=${filters.brand}&model_id=${filters.model}&year_from=${filters.yearFrom}&year_to=${filters.yearTo}&mileage_from=${filters.mileageFrom}&mileage_to=${filters.mileageTo}&engine_from=${filters.capacityFrom}&engine_to=${filters.capacityTo}&price_from=${filters.priceFrom}&price_to=${filters.priceTo}&sort=${sortOption}&page=${pageNumber}`,
+				)}`,
 			)
 			const newCars = response.data
 
@@ -148,7 +150,9 @@ const ExportCatalog = () => {
 	const fetchTotalCars = async () => {
 		try {
 			const response = await axios.get(
-				`https://corsproxy.io/?url=${`https://api.darvin.digital/api.php?method=get_cars_count&marka_id=${filters.brand}&model_id=${filters.model}&year_from=${filters.yearFrom}&year_to=${filters.yearTo}&mileage_from=${filters.mileageFrom}&mileage_to=${filters.mileageTo}&engine_from=${filters.capacityFrom}&engine_to=${filters.capacityTo}&price_from=${filters.priceFrom}&price_to=${filters.priceTo}&sort=${sortOption}`}`,
+				`https://corsproxy.io/?url=${encodeURIComponent(
+					`https://api.darvin.digital/api.php?method=get_cars_count&marka_id=${filters.brand}&model_id=${filters.model}&year_from=${filters.yearFrom}&year_to=${filters.yearTo}&mileage_from=${filters.mileageFrom}&mileage_to=${filters.mileageTo}&engine_from=${filters.capacityFrom}&engine_to=${filters.capacityTo}&price_from=${filters.priceFrom}&price_to=${filters.priceTo}&sort=${sortOption}`,
+				)}`,
 			)
 
 			if (response.data.length > 0 && response.data[0].TOTAL_COUNT) {
@@ -510,7 +514,7 @@ const ExportCatalog = () => {
 	}
 
 	return (
-		<div className='mt-35 container m-auto'>
+		<div className='mt-40 container m-auto'>
 			<h1 className='text-3xl font-bold text-center mb-5'>
 				Каталог авто в Корее
 			</h1>
