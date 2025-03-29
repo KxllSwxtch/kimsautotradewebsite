@@ -2,8 +2,13 @@ import axios from 'axios'
 import { useState, useEffect } from 'react'
 import { formatDate, transformBadgeValue } from '../utils'
 import { CarCard } from '../components'
+import { translateValue, translations } from '../translations'
+
+console.log(translations)
 
 const ExportCatalog = () => {
+	const [searchByNumber, setSearchByNumber] = useState('')
+
 	const [currentPage, setCurrentPage] = useState(1)
 	const [totalCars, setTotalCars] = useState(0)
 
@@ -68,6 +73,7 @@ const ExportCatalog = () => {
 	// Загружаем список производителей
 	useEffect(() => {
 		const fetchManufacturers = async () => {
+			setCurrentPage(1)
 			const url = `https://api.encar.com/search/car/list/general?count=true&q=(And.Hidden.N._.SellType.%EC%9D%BC%EB%B0%98._.CarType.A.)&inav=%7CMetadata%7CSort`
 
 			const response = await axios.get(url)
@@ -91,6 +97,8 @@ const ExportCatalog = () => {
 	useEffect(() => {
 		const fetchModelGroups = async () => {
 			if (!selectedManufacturer) return
+
+			setCurrentPage(1)
 
 			const url = `https://api.encar.com/search/car/list/general?count=true&q=(And.Hidden.N._.SellType.%EC%9D%BC%EB%B0%98._.(C.CarType.A._.Manufacturer.${selectedManufacturer}.))&inav=%7CMetadata%7CSort`
 
@@ -121,14 +129,15 @@ const ExportCatalog = () => {
 	useEffect(() => {
 		const fetchModelGroups = async () => {
 			if (!selectedModelGroup) return
+			setCurrentPage(1)
 
 			const url = `https://api.encar.com/search/car/list/general?count=true&count=true&q=(And.Hidden.N._.SellType.%EC%9D%BC%EB%B0%98._.(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.ModelGroup.${selectedModelGroup}.)))&inav=%7CMetadata%7CSort`
 			const response = await axios.get(url)
+
+			const data = response?.data
 			const count = data?.Count
 
 			setTotalCars(count)
-
-			const data = response?.data
 
 			const allManufacturers =
 				data?.iNav?.Nodes[2]?.Facets[0]?.Refinements?.Nodes[0]?.Facets
@@ -153,6 +162,7 @@ const ExportCatalog = () => {
 	useEffect(() => {
 		const fetchConfigurations = async () => {
 			if (!selectedModel) return
+			setCurrentPage(1)
 
 			const url = `https://api.encar.com/search/car/list/general?count=true&count=true&q=(And.Hidden.N._.(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.Model.${selectedModel}.))))&inav=%7CMetadata%7CSort`
 
@@ -193,6 +203,7 @@ const ExportCatalog = () => {
 	// Загружаем объёмы
 	useEffect(() => {
 		if (!selectedConfiguration) return
+		setCurrentPage(1)
 
 		const fetchBadges = async () => {
 			const url = `https://api.encar.com/search/car/list/general?count=true&q=(And.Hidden.N._.(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.(C.Model.${selectedModel}._.BadgeGroup.${selectedConfiguration}.)))))&inav=%7CMetadata%7CSort`
@@ -245,6 +256,7 @@ const ExportCatalog = () => {
 	useEffect(() => {
 		const fetchBadgeDetails = async () => {
 			if (!selectedBadge) return
+			setCurrentPage(1)
 
 			const url = `https://api.encar.com/search/car/list/general?count=true&q=(And.Hidden.N._.(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.(C.Model.${selectedModel}._.(C.BadgeGroup.${selectedConfiguration}._.Badge.${encodeURIComponent(
 				transformBadgeValue(selectedBadge),
@@ -300,8 +312,16 @@ const ExportCatalog = () => {
 	])
 
 	const fetchCars = async () => {
-		let queryParts = ['(And.Hidden.N._.SellType.일반._.']
+		let queryParts = []
 		let filters = []
+
+		if (searchByNumber) {
+			queryParts.push(
+				`(And.Hidden.N._.CarType.A._.Simple.keyword(${searchByNumber}).)`,
+			)
+		} else {
+			queryParts.push('(And.Hidden.N._.SellType.일반._.')
+		}
 
 		if (
 			selectedManufacturer &&
@@ -380,13 +400,16 @@ const ExportCatalog = () => {
 			')'
 
 		const encodedQuery = encodeURIComponent(query)
-		const url = `https://api.encar.com/search/car/list/general?count=true&q=${encodedQuery}&sr=%7CModifiedDate%7C0%7C20`
+		const itemsPerPage = 20
+		const offset = (currentPage - 1) * itemsPerPage
+		const url = `https://api.encar.com/search/car/list/general?count=true&q=${encodedQuery}&sr=%7CModifiedDate%7C${offset}%7C${itemsPerPage}`
 
 		console.log('Generated q=', query)
 
 		try {
 			const response = await axios.get(url)
 			setCars(response.data?.SearchResults || [])
+			window.scrollTo({ top: 0, behavior: 'smooth' })
 		} catch (error) {
 			console.error('Ошибка при загрузке автомобилей:', error)
 		}
@@ -409,9 +432,9 @@ const ExportCatalog = () => {
 		mileageEnd,
 		priceStart,
 		priceEnd,
+		currentPage,
+		searchByNumber,
 	])
-
-	console.log(totalCars)
 
 	return (
 		<div className='md:mt-40 mt-35 px-6'>
@@ -428,7 +451,7 @@ const ExportCatalog = () => {
 						<option value=''>Марка</option>
 						{manufacturers?.map((manufacturer, index) => (
 							<option key={index} value={manufacturer.Value}>
-								{manufacturer.Value} ({manufacturer.Count})
+								{translateValue(manufacturer.Value)} ({manufacturer.Count})
 							</option>
 						))}
 					</select>
@@ -441,7 +464,7 @@ const ExportCatalog = () => {
 						<option value=''>Модель</option>
 						{modelGroups?.map((modelGroup, index) => (
 							<option key={index} value={modelGroup.Value}>
-								{modelGroup.Value} ({modelGroup.Count})
+								{translateValue(modelGroup.Value)} ({modelGroup.Count})
 							</option>
 						))}
 					</select>
@@ -454,9 +477,9 @@ const ExportCatalog = () => {
 						<option value=''>Поколение</option>
 						{models?.map((model, index) => (
 							<option key={index} value={model.Value}>
-								{model.Value} ({formatDate(model?.Metadata?.ModelStartDate[0])}{' '}
-								- {formatDate(model?.Metadata?.ModelEndDate[0])}) ({model.Count}
-								)
+								{translateValue(model.Value)} (
+								{formatDate(model?.Metadata?.ModelStartDate[0])} -{' '}
+								{formatDate(model?.Metadata?.ModelEndDate[0])}) ({model.Count})
 							</option>
 						))}
 					</select>
@@ -469,7 +492,7 @@ const ExportCatalog = () => {
 						<option value=''>Конфигурация</option>
 						{configurations?.map((configuration, index) => (
 							<option key={index} value={configuration.Value}>
-								{configuration.Value} ({configuration.Count})
+								{translateValue(configuration.Value)} ({configuration.Count})
 							</option>
 						))}
 					</select>
@@ -482,7 +505,7 @@ const ExportCatalog = () => {
 						<option value=''>Выберите конфигурацию</option>
 						{badges?.map((badge, index) => (
 							<option key={index} value={badge.Value}>
-								{badge.Value} ({badge.Count})
+								{translateValue(badge.Value)} ({badge.Count})
 							</option>
 						))}
 					</select>
@@ -500,7 +523,7 @@ const ExportCatalog = () => {
 								<option value=''>Выберите комплектацию</option>
 								{badgeDetails.map((badgeDetail, index) => (
 									<option key={index} value={badgeDetail.Value}>
-										{badgeDetail.Value} ({badgeDetail.Count})
+										{translateValue(badgeDetail.Value)} ({badgeDetail.Count})
 									</option>
 								))}
 							</select>
@@ -562,7 +585,6 @@ const ExportCatalog = () => {
 								})}
 						</select>
 					</div>
-
 					<div className='grid grid-cols-2 gap-3'>
 						<select
 							className='w-full border border-gray-300 rounded-md px-3 py-2 mt-4 disabled:bg-gray-200'
@@ -697,33 +719,92 @@ const ExportCatalog = () => {
 								))}
 						</select>
 					</div>
+
+					<input
+						type='text'
+						placeholder='Поиск по номеру авто (например, 49서0290)'
+						className='w-full border border-gray-300 rounded-md px-3 py-2 mt-5'
+						value={searchByNumber}
+						onChange={(e) => {
+							setSearchByNumber(e.target.value)
+							setCurrentPage(1)
+						}}
+					/>
+
+					<button
+						className='w-full bg-red-500 text-white py-2 px-4 mt-5 rounded hover:bg-red-600 transition cursor-pointer'
+						onClick={() => {
+							setSelectedManufacturer('')
+							setSelectedModelGroup('')
+							setSelectedModel('')
+							setSelectedConfiguration('')
+							setSelectedBadge('')
+							setSelectedBadgeDetails('')
+							setStartYear('')
+							setStartMonth('00')
+							setEndYear('')
+							setEndMonth('00')
+							setMileageStart('')
+							setMileageEnd('')
+							setPriceStart('')
+							setPriceEnd('')
+							setSearchByNumber('')
+							setCurrentPage(1)
+						}}
+					>
+						Сбросить фильтры
+					</button>
 				</div>
 
-				<div className='md:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8'>
-					{cars.map((car) => (
-						<CarCard key={car.Id} car={car} usdKrwRate={usdKrwRate} />
-					))}
-				</div>
+				{cars.length > 0 ? (
+					<div className='md:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8'>
+						{cars.map((car) => (
+							<CarCard key={car.Id} car={car} usdKrwRate={usdKrwRate} />
+						))}
+					</div>
+				) : (
+					<h1 className='text-lg font-bold'>Автомобили не найдены</h1>
+				)}
 			</div>
 			{totalCars > 20 && (
-				<div className='flex justify-center mt-10'>
-					<div className='flex overflow-x-auto scrollbar-hide gap-1 px-2 max-w-full'>
-						{Array.from(
-							{ length: Math.ceil(totalCars / 20) },
-							(_, i) => i + 1,
-						).map((page) => (
+				<div className='flex justify-center mt-10 mb-10'>
+					<div className='flex flex-wrap justify-center items-center gap-2 px-4 max-w-full'>
+						{currentPage > 1 && (
 							<button
-								key={page}
-								onClick={() => setCurrentPage(page)}
-								className={`min-w-[36px] h-9 px-2 text-sm border rounded transition ${
-									currentPage === page
-										? 'bg-black text-white font-semibold'
-										: 'bg-white text-black hover:bg-gray-100'
-								}`}
+								onClick={() => setCurrentPage(currentPage - 1)}
+								className='cursor-pointer w-10 h-10 flex items-center justify-center border rounded-md text-sm font-medium shadow-sm bg-white text-gray-800 hover:bg-gray-100'
 							>
-								{page}
+								‹
 							</button>
-						))}
+						)}
+						{Array.from({ length: Math.ceil(totalCars / 20) }, (_, i) => i + 1)
+							.filter((page) => {
+								if (currentPage <= 3) return page <= 5
+								const lastPage = Math.ceil(totalCars / 20)
+								if (currentPage >= lastPage - 2) return page >= lastPage - 4
+								return page >= currentPage - 2 && page <= currentPage + 2
+							})
+							.map((page) => (
+								<button
+									key={page}
+									onClick={() => setCurrentPage(page)}
+									className={`cursor-pointer w-10 h-10 flex items-center justify-center border rounded-md text-sm font-medium shadow-sm transition-all duration-200 ${
+										currentPage === page
+											? 'bg-black text-white'
+											: 'bg-white text-gray-800 hover:bg-gray-100'
+									}`}
+								>
+									{page}
+								</button>
+							))}
+						{currentPage < Math.ceil(totalCars / 20) && (
+							<button
+								onClick={() => setCurrentPage(currentPage + 1)}
+								className='cursor-pointer w-10 h-10 flex items-center justify-center border rounded-md text-sm font-medium shadow-sm bg-white text-gray-800 hover:bg-gray-100'
+							>
+								›
+							</button>
+						)}
 					</div>
 				</div>
 			)}

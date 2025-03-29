@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import { useState, useEffect } from 'react'
 
 // Local imports
 import { translateCarName } from '../utils'
+import { translations } from '../translations'
 
 const fuelTypeTranslation = {
 	휘발유: 'Бензин',
