@@ -4,6 +4,9 @@ import { formatDate, transformBadgeValue } from '../utils'
 import { CarCard } from '../components'
 
 const ExportCatalog = () => {
+	const [currentPage, setCurrentPage] = useState(1)
+	const [totalCars, setTotalCars] = useState(0)
+
 	const [priceStart, setPriceStart] = useState('')
 	const [priceEnd, setPriceEnd] = useState('')
 
@@ -70,6 +73,9 @@ const ExportCatalog = () => {
 			const response = await axios.get(url)
 
 			const data = response.data
+			const count = data?.Count
+
+			setTotalCars(count)
 
 			// data -> iNav -> Nodes[2] -> Nodes[2]?.Facets -> Nodes[2]?.Facets[0]?.Refinements?.Nodes[0]?.Facets
 			const manufacturers =
@@ -91,6 +97,9 @@ const ExportCatalog = () => {
 			const response = await axios.get(url)
 
 			const data = response?.data
+			const count = data?.Count
+
+			setTotalCars(count)
 
 			// data?.iNav?.Nodes[2]?.Facets[0]?.Refinements?.Nodes[0]?.Facets
 			const allManufacturers =
@@ -114,9 +123,10 @@ const ExportCatalog = () => {
 			if (!selectedModelGroup) return
 
 			const url = `https://api.encar.com/search/car/list/general?count=true&count=true&q=(And.Hidden.N._.SellType.%EC%9D%BC%EB%B0%98._.(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.ModelGroup.${selectedModelGroup}.)))&inav=%7CMetadata%7CSort`
-			const catalogUrl = `https://api.encar.com/search/car/list/general?count=true&count=true&q=(And.Hidden.N._.SellType.%EC%9D%BC%EB%B0%98._.(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.ModelGroup.${selectedModelGroup}.)))&sr=%7CModifiedDate%7C0%7C20`
-
 			const response = await axios.get(url)
+			const count = data?.Count
+
+			setTotalCars(count)
 
 			const data = response?.data
 
@@ -149,6 +159,9 @@ const ExportCatalog = () => {
 			const response = await axios.get(url)
 
 			const data = response?.data
+			const count = data?.Count
+
+			setTotalCars(count)
 
 			const allManufacturers =
 				data?.iNav?.Nodes[1]?.Facets[0]?.Refinements?.Nodes[0]?.Facets
@@ -187,6 +200,9 @@ const ExportCatalog = () => {
 			const response = await axios.get(url)
 
 			const data = response?.data
+			const count = data?.Count
+
+			setTotalCars(count)
 
 			const allManufacturers =
 				data?.iNav?.Nodes[1]?.Facets[0]?.Refinements?.Nodes[0]?.Facets
@@ -394,6 +410,8 @@ const ExportCatalog = () => {
 		priceStart,
 		priceEnd,
 	])
+
+	console.log(totalCars)
 
 	return (
 		<div className='md:mt-40 mt-35 px-6'>
@@ -687,6 +705,28 @@ const ExportCatalog = () => {
 					))}
 				</div>
 			</div>
+			{totalCars > 20 && (
+				<div className='flex justify-center mt-10'>
+					<div className='flex overflow-x-auto scrollbar-hide gap-1 px-2 max-w-full'>
+						{Array.from(
+							{ length: Math.ceil(totalCars / 20) },
+							(_, i) => i + 1,
+						).map((page) => (
+							<button
+								key={page}
+								onClick={() => setCurrentPage(page)}
+								className={`min-w-[36px] h-9 px-2 text-sm border rounded transition ${
+									currentPage === page
+										? 'bg-black text-white font-semibold'
+										: 'bg-white text-black hover:bg-gray-100'
+								}`}
+							>
+								{page}
+							</button>
+						))}
+					</div>
+				</div>
+			)}
 		</div>
 	)
 }
