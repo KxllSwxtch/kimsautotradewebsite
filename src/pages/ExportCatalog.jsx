@@ -251,6 +251,7 @@ const ExportCatalog = () => {
 		selectedModelGroup,
 		selectedModel,
 		selectedConfiguration,
+		selectedBadge,
 	])
 
 	useEffect(() => {
@@ -402,6 +403,8 @@ const ExportCatalog = () => {
 		const encodedQuery = encodeURIComponent(query)
 		const itemsPerPage = 20
 		const offset = (currentPage - 1) * itemsPerPage
+
+		// https://api-encar.habsidev.com/api/catalog?
 		const url = `https://api.encar.com/search/car/list/general?count=true&q=${encodedQuery}&sr=%7CModifiedDate%7C${offset}%7C${itemsPerPage}`
 
 		console.log('Generated q=', query)

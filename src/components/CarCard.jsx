@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import { translateValue } from '../translations'
+import { translateValue, translations } from '../translations'
 
 const CarCard = ({ car, usdKrwRate }) => {
 	// Конвертация цены
@@ -35,8 +35,8 @@ const CarCard = ({ car, usdKrwRate }) => {
 							</span>
 						</div>
 						<div className='flex justify-between border-b border-dotted pb-1'>
-							<span>Объём</span>
-							<span className='font-medium'>{car.FuelType}</span>
+							<span>Тип топлива</span>
+							<span className='font-medium'>{translations[car.FuelType]}</span>
 						</div>
 					</div>
 				</div>
