@@ -1,12 +1,11 @@
 import axios from 'axios'
 import { useState, useEffect } from 'react'
 import { formatDate, transformBadgeValue } from '../utils'
-import { CarCard } from '../components'
+import { CarCard, Loader } from '../components'
 import { translateValue, translations } from '../translations'
 
-console.log(translations)
-
 const ExportCatalog = () => {
+	const [loading, setLoading] = useState(true)
 	const [searchByNumber, setSearchByNumber] = useState('')
 
 	const [currentPage, setCurrentPage] = useState(1)
@@ -259,48 +258,46 @@ const ExportCatalog = () => {
 			if (!selectedBadge) return
 			setCurrentPage(1)
 
-			const url = `https://api.encar.com/search/car/list/general?count=true&q=(And.Hidden.N._.(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.(C.Model.${selectedModel}._.(C.BadgeGroup.${selectedConfiguration}._.Badge.${encodeURIComponent(
-				transformBadgeValue(selectedBadge),
+			const url = `https://api-encar.habsidev.com/api/nav?count=true&q=(And.Hidden.N._.SellType.%EC%9D%BC%EB%B0%98._.(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.(C.Model.${selectedModel}._.(C.BadgeGroup.${selectedConfiguration}._.Badge.${transformBadgeValue(
+				selectedBadge,
 			)}.))))))&inav=%7CMetadata%7CSort`
 
-			console.log(url)
+			try {
+				const response = await axios.get(url)
 
-			const response = await axios.get(url)
+				const data = response?.data
 
-			const data = response?.data
+				const count = data?.Count
 
-			const allManufacturers =
-				data?.iNav?.Nodes[1]?.Facets[0]?.Refinements?.Nodes[0]?.Facets
+				setTotalCars(count)
 
-			const filteredManufacturer = allManufacturers.filter(
-				(item) => item.IsSelected === true,
-			)[0]
+				const allManufacturers =
+					data?.iNav?.Nodes[2]?.Facets[0]?.Refinements?.Nodes[0]?.Facets
 
-			const modelGroup = filteredManufacturer?.Refinements?.Nodes[0]?.Facets
+				const filteredManufacturer = allManufacturers?.find(
+					(item) => item.IsSelected,
+				)
+				const modelGroup = filteredManufacturer?.Refinements?.Nodes[0]?.Facets
+				const filteredModel = modelGroup?.find((item) => item.IsSelected)
 
-			const filteredModel = modelGroup?.filter(
-				(item) => item.IsSelected === true,
-			)[0]
+				const models = filteredModel?.Refinements?.Nodes[0]?.Facets
+				const filteredConfiguration = models?.find((item) => item.IsSelected)
 
-			const models = filteredModel?.Refinements?.Nodes[0]?.Facets
-			const filteredConfiguration = models?.filter(
-				(item) => item.IsSelected === true,
-			)[0]
+				const configurations =
+					filteredConfiguration?.Refinements?.Nodes[0]?.Facets
+				const filteredBadgeGroup = configurations?.find(
+					(item) => item.IsSelected,
+				)
 
-			const configurations =
-				filteredConfiguration?.Refinements?.Nodes[0]?.Facets
+				const badges = filteredBadgeGroup?.Refinements?.Nodes[0]?.Facets
+				const filteredBadge = badges?.find((item) => item.IsSelected)
 
-			const filteredBadgeGroup = configurations?.filter(
-				(item) => item.IsSelected === true,
-			)[0]
+				const badgeDetails = filteredBadge?.Refinements?.Nodes[0]?.Facets
 
-			const badges = filteredBadgeGroup?.Refinements?.Nodes[0]?.Facets
-
-			const filteredBadge = badges?.filter((item) => item.IsSelected === true)
-
-			const badgeDetails = filteredBadge?.Refinements?.Nodes[0]?.Facets
-
-			setBadgeDetails(badgeDetails)
+				setBadgeDetails(badgeDetails)
+			} catch (error) {
+				console.error('Ошибка при получении badgeDetails:', error)
+			}
 		}
 
 		fetchBadgeDetails()
@@ -313,6 +310,8 @@ const ExportCatalog = () => {
 	])
 
 	const fetchCars = async () => {
+		setLoading(true)
+
 		let queryParts = []
 		let filters = []
 
@@ -329,12 +328,13 @@ const ExportCatalog = () => {
 			selectedModelGroup &&
 			selectedModel &&
 			selectedConfiguration &&
-			selectedBadge
+			selectedBadge &&
+			selectedBadgeDetails
 		) {
 			queryParts.push(
-				`(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.(C.Model.${selectedModel}._.(C.BadgeGroup.${selectedConfiguration}._.Badge.${encodeURIComponent(
-					transformBadgeValue(selectedBadge),
-				)}.)))))`,
+				`(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.(C.Model.${selectedModel}._.(C.BadgeGroup.${selectedConfiguration}._.(C.Badge.${transformBadgeValue(
+					selectedBadge,
+				)}._.BadgeDetail.${selectedBadgeDetails}.))))))`,
 			)
 		} else if (
 			selectedManufacturer &&
@@ -405,13 +405,16 @@ const ExportCatalog = () => {
 		const offset = (currentPage - 1) * itemsPerPage
 
 		// https://api-encar.habsidev.com/api/catalog?
-		const url = `https://api.encar.com/search/car/list/general?count=true&q=${encodedQuery}&sr=%7CModifiedDate%7C${offset}%7C${itemsPerPage}`
+		const url =
+			'https://corsproxy.io/?key=28174bc7&url=' +
+			`https://api-encar.habsidev.com/api/catalog?count=true&q=${encodedQuery}&sr=%7CModifiedDate%7C${offset}%7C${itemsPerPage}`
 
 		console.log('Generated q=', query)
 
 		try {
 			const response = await axios.get(url)
 			setCars(response.data?.SearchResults || [])
+			setLoading(false)
 			window.scrollTo({ top: 0, behavior: 'smooth' })
 		} catch (error) {
 			console.error('Ошибка при загрузке автомобилей:', error)
@@ -439,6 +442,25 @@ const ExportCatalog = () => {
 		searchByNumber,
 	])
 
+	useEffect(() => {
+		if (!selectedManufacturer) {
+			setSelectedModelGroup('')
+			setSelectedModel('')
+			setSelectedConfiguration('')
+			setSelectedBadge('')
+			setSelectedBadgeDetails('')
+		}
+	}, [selectedManufacturer])
+
+	useEffect(() => {
+		if (!selectedModelGroup) {
+			setSelectedModel('')
+			setSelectedConfiguration('')
+			setSelectedBadge('')
+			setSelectedBadgeDetails('')
+		}
+	}, [selectedModelGroup])
+
 	return (
 		<div className='md:mt-40 mt-35 px-6'>
 			<h1 className='text-3xl font-bold text-center mb-5'>
@@ -459,7 +481,7 @@ const ExportCatalog = () => {
 						))}
 					</select>
 					<select
-						disabled={!selectedManufacturer}
+						disabled={selectedManufacturer.length === 0}
 						className='w-full border border-gray-300 rounded-md px-3 py-2 mt-4 disabled:bg-gray-200'
 						value={selectedModelGroup}
 						onChange={(e) => setSelectedModelGroup(e.target.value)}
@@ -512,25 +534,20 @@ const ExportCatalog = () => {
 							</option>
 						))}
 					</select>
-					{selectedManufacturer &&
-						selectedModelGroup &&
-						selectedModel &&
-						selectedConfiguration &&
-						selectedBadge &&
-						badgeDetails && (
-							<select
-								className='w-full border border-gray-300 rounded-md px-3 py-2 mt-4'
-								value={selectedBadgeDetails}
-								onChange={(e) => setSelectedBadgeDetails(e.target.value)}
-							>
-								<option value=''>Выберите комплектацию</option>
-								{badgeDetails.map((badgeDetail, index) => (
-									<option key={index} value={badgeDetail.Value}>
-										{translateValue(badgeDetail.Value)} ({badgeDetail.Count})
-									</option>
-								))}
-							</select>
-						)}
+
+					<select
+						disabled={!selectedBadge}
+						className='w-full border border-gray-300 rounded-md px-3 py-2 mt-4'
+						value={selectedBadgeDetails}
+						onChange={(e) => setSelectedBadgeDetails(e.target.value)}
+					>
+						<option value=''>Выберите комплектацию</option>
+						{badgeDetails?.map((badgeDetail, index) => (
+							<option key={index} value={badgeDetail.Value}>
+								{translateValue(badgeDetail.Value)} ({badgeDetail.Count})
+							</option>
+						))}
+					</select>
 
 					<div className='grid grid-cols-2 gap-3'>
 						<select
@@ -559,33 +576,26 @@ const ExportCatalog = () => {
 							<option value=''>Месяц от</option>
 							{Array.from({ length: 12 }, (_, i) => {
 								const value = (i + 1).toString().padStart(2, '0')
-								return { value, i }
-							})
-								.filter(
-									({ value }) =>
-										!endMonth || parseInt(value) <= parseInt(endMonth),
+								const monthNames = [
+									'Январь',
+									'Февраль',
+									'Март',
+									'Апрель',
+									'Май',
+									'Июнь',
+									'Июль',
+									'Август',
+									'Сентябрь',
+									'Октябрь',
+									'Ноябрь',
+									'Декабрь',
+								]
+								return (
+									<option key={value} value={value}>
+										{monthNames[i]}
+									</option>
 								)
-								.map(({ value, i }) => {
-									const monthNames = [
-										'Январь',
-										'Февраль',
-										'Март',
-										'Апрель',
-										'Май',
-										'Июнь',
-										'Июль',
-										'Август',
-										'Сентябрь',
-										'Октябрь',
-										'Ноябрь',
-										'Декабрь',
-									]
-									return (
-										<option key={value} value={value}>
-											{monthNames[i]}
-										</option>
-									)
-								})}
+							})}
 						</select>
 					</div>
 					<div className='grid grid-cols-2 gap-3'>
@@ -759,14 +769,18 @@ const ExportCatalog = () => {
 					</button>
 				</div>
 
-				{cars.length > 0 ? (
+				{loading ? (
+					<Loader />
+				) : cars.length > 0 ? (
 					<div className='md:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8'>
 						{cars.map((car) => (
 							<CarCard key={car.Id} car={car} usdKrwRate={usdKrwRate} />
 						))}
 					</div>
 				) : (
-					<h1 className='text-lg font-bold'>Автомобили не найдены</h1>
+					<h1 className='text-lg font-bold text-center mt-5 md:mt-0'>
+						Автомобили не найдены
+					</h1>
 				)}
 			</div>
 			{totalCars > 20 && (
