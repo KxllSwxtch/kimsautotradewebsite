@@ -258,7 +258,7 @@ const ExportCatalog = () => {
 			if (!selectedBadge) return
 			setCurrentPage(1)
 
-			const url = `https://api-encar.habsidev.com/api/nav?count=true&q=(And.Hidden.N._.SellType.%EC%9D%BC%EB%B0%98._.(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.(C.Model.${selectedModel}._.(C.BadgeGroup.${selectedConfiguration}._.Badge.${transformBadgeValue(
+			const url = `https://api.encar.com/search/car/list/general?count=true&q=(And.Hidden.N._.SellType.%EC%9D%BC%EB%B0%98._.(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.(C.Model.${selectedModel}._.(C.BadgeGroup.${selectedConfiguration}._.Badge.${transformBadgeValue(
 				selectedBadge,
 			)}.))))))&inav=%7CMetadata%7CSort`
 
@@ -404,10 +404,8 @@ const ExportCatalog = () => {
 		const itemsPerPage = 20
 		const offset = (currentPage - 1) * itemsPerPage
 
-		// https://api-encar.habsidev.com/api/catalog?
-		const url =
-			'https://corsproxy.io/?key=28174bc7&url=' +
-			`https://api-encar.habsidev.com/api/catalog?count=true&q=${encodedQuery}&sr=%7CModifiedDate%7C${offset}%7C${itemsPerPage}`
+		// const url = `https://api-encar.habsidev.com/api/catalog?count=true&q=${encodedQuery}&sr=|ModifiedDate|${offset}|${itemsPerPage}`
+		const url = `https://encar-proxy.onrender.com/api/catalog?q=${encodedQuery}&sr=|ModifiedDate|${offset}|${itemsPerPage}`
 
 		console.log('Generated q=', query)
 
@@ -778,7 +776,7 @@ const ExportCatalog = () => {
 						))}
 					</div>
 				) : (
-					<h1 className='text-lg font-bold text-center mt-5 md:mt-0'>
+					<h1 className='text-lg font-bold text-center mt-5 md:mt-0 col-span-3'>
 						Автомобили не найдены
 					</h1>
 				)}
