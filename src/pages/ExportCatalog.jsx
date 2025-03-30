@@ -2,7 +2,13 @@ import axios from 'axios'
 import { useState, useEffect } from 'react'
 import { formatDate, transformBadgeValue } from '../utils'
 import { CarCard, Loader } from '../components'
-import { translateValue, translations } from '../translations'
+import {
+	carBrandsTranslation,
+	carModelsTranslation,
+	carTrimsTranslation,
+	translateValue,
+	translations,
+} from '../translations'
 
 const ExportCatalog = () => {
 	const [loading, setLoading] = useState(true)
@@ -472,11 +478,15 @@ const ExportCatalog = () => {
 						onChange={(e) => setSelectedManufacturer(e.target.value)}
 					>
 						<option value=''>Марка</option>
-						{manufacturers?.map((manufacturer, index) => (
-							<option key={index} value={manufacturer.Value}>
-								{translateValue(manufacturer.Value)} ({manufacturer.Count})
-							</option>
-						))}
+						{manufacturers
+							?.filter((manufacturer) => manufacturer.Count > 0)
+							.map((manufacturer, index) => (
+								<option key={index} value={manufacturer.Value}>
+									{carBrandsTranslation[manufacturer.Value] ||
+										manufacturer.Value}{' '}
+									({manufacturer.Count} автомобилей)
+								</option>
+							))}
 					</select>
 					<select
 						disabled={selectedManufacturer.length === 0}
@@ -485,11 +495,14 @@ const ExportCatalog = () => {
 						onChange={(e) => setSelectedModelGroup(e.target.value)}
 					>
 						<option value=''>Модель</option>
-						{modelGroups?.map((modelGroup, index) => (
-							<option key={index} value={modelGroup.Value}>
-								{translateValue(modelGroup.Value)} ({modelGroup.Count})
-							</option>
-						))}
+						{modelGroups
+							?.filter((modelGroup) => modelGroup.Count > 0)
+							.map((modelGroup, index) => (
+								<option key={index} value={modelGroup.Value}>
+									{carModelsTranslation[modelGroup.Value] || modelGroup.Value} (
+									{modelGroup.Count} автомобилей)
+								</option>
+							))}
 					</select>
 					<select
 						disabled={!selectedModelGroup}
@@ -498,13 +511,16 @@ const ExportCatalog = () => {
 						onChange={(e) => setSelectedModel(e.target.value)}
 					>
 						<option value=''>Поколение</option>
-						{models?.map((model, index) => (
-							<option key={index} value={model.Value}>
-								{translateValue(model.Value)} (
-								{formatDate(model?.Metadata?.ModelStartDate[0])} -{' '}
-								{formatDate(model?.Metadata?.ModelEndDate[0])}) ({model.Count})
-							</option>
-						))}
+						{models
+							?.filter((model) => model.Count > 0)
+							.map((model, index) => (
+								<option key={index} value={model.Value}>
+									{carTrimsTranslation[model.Value] || model.Value} (
+									{formatDate(model?.Metadata?.ModelStartDate[0])} -{' '}
+									{formatDate(model?.Metadata?.ModelEndDate[0])}) ({model.Count}{' '}
+									автомобилей )
+								</option>
+							))}
 					</select>
 					<select
 						disabled={!selectedModel}
@@ -513,11 +529,15 @@ const ExportCatalog = () => {
 						onChange={(e) => setSelectedConfiguration(e.target.value)}
 					>
 						<option value=''>Конфигурация</option>
-						{configurations?.map((configuration, index) => (
-							<option key={index} value={configuration.Value}>
-								{translateValue(configuration.Value)} ({configuration.Count})
-							</option>
-						))}
+						{configurations
+							?.filter((configuration) => configuration.Count > 0)
+							.map((configuration, index) => (
+								<option key={index} value={configuration.Value}>
+									{carTrimsTranslation[configuration.Value] ||
+										configuration.Value}{' '}
+									({configuration.Count})
+								</option>
+							))}
 					</select>
 					<select
 						disabled={!selectedConfiguration}
@@ -526,25 +546,29 @@ const ExportCatalog = () => {
 						onChange={(e) => setSelectedBadge(e.target.value)}
 					>
 						<option value=''>Выберите конфигурацию</option>
-						{badges?.map((badge, index) => (
-							<option key={index} value={badge.Value}>
-								{translateValue(badge.Value)} ({badge.Count})
-							</option>
-						))}
+						{badges
+							?.filter((badge) => badge.Count > 0)
+							.map((badge, index) => (
+								<option key={index} value={badge.Value}>
+									{translateValue(badge.Value)} ({badge.Count})
+								</option>
+							))}
 					</select>
 
 					<select
 						disabled={!selectedBadge}
-						className='w-full border border-gray-300 rounded-md px-3 py-2 mt-4'
+						className='w-full border border-gray-300 rounded-md px-3 py-2 mt-4 disabled:bg-gray-200'
 						value={selectedBadgeDetails}
 						onChange={(e) => setSelectedBadgeDetails(e.target.value)}
 					>
 						<option value=''>Выберите комплектацию</option>
-						{badgeDetails?.map((badgeDetail, index) => (
-							<option key={index} value={badgeDetail.Value}>
-								{translateValue(badgeDetail.Value)} ({badgeDetail.Count})
-							</option>
-						))}
+						{badgeDetails
+							?.filter((badgeDetails) => badgeDetails.Count > 0)
+							.map((badgeDetail, index) => (
+								<option key={index} value={badgeDetail.Value}>
+									{translateValue(badgeDetail.Value)} ({badgeDetail.Count})
+								</option>
+							))}
 					</select>
 
 					<div className='grid grid-cols-2 gap-3'>

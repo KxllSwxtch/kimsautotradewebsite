@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Pagination } from 'swiper/modules'
+import { Thumbs } from 'swiper/modules'
 import { FaInstagram, FaWhatsapp } from 'react-icons/fa'
+import { motion } from 'framer-motion'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
@@ -67,6 +69,7 @@ const colorTranslations = {
 
 const ExportCarDetails = () => {
 	const [calculatedResultKZ, setCalculatedResultKZ] = useState(null)
+	const [thumbsSwiper, setThumbsSwiper] = useState(null)
 
 	const [usdKrwRate, setUsdKrwRate] = useState(null)
 	const [usdRubRate, setUsdRubRate] = useState(null)
@@ -305,74 +308,182 @@ const ExportCarDetails = () => {
 				{car?.category?.modelGroupEnglishName} {car?.category?.gradeEnglishName}
 			</h1>
 
-			{/* Слайдер с фото */}
-			{sortedPhotos.length > 0 && (
-				<div className='max-w-2xl mx-auto mb-'>
-					<Swiper
-						modules={[Navigation, Pagination]}
-						spaceBetween={10}
-						slidesPerView={1}
-						navigation
-						pagination={{ clickable: true }}
-						className='rounded-lg shadow-lg'
-					>
-						{uniquePhotos.map((photo, index) => (
-							<SwiperSlide key={index}>
-								<img
-									src={getPhotoUrl(photo.path)}
-									alt={`Car image ${index + 1}`}
-									className='w-full h-auto rounded-lg'
-								/>
-							</SwiperSlide>
-						))}
-					</Swiper>
+			<div className='md:flex md:gap-8'>
+				{/* Слайдер с фото */}
+				<div className='max-w-3xl mx-auto mb-10 md:w-1/2'>
+					{sortedPhotos.length > 0 && (
+						<div className='max-w-3xl mx-auto mb-10'>
+							<Swiper
+								modules={[Navigation, Pagination, Thumbs]}
+								spaceBetween={10}
+								slidesPerView={1}
+								navigation
+								pagination={{ clickable: true }}
+								thumbs={{ swiper: thumbsSwiper }}
+								className='rounded-lg shadow-lg mb-4'
+							>
+								{uniquePhotos.map((photo, index) => (
+									<SwiperSlide key={index}>
+										<img
+											src={getPhotoUrl(photo.path)}
+											alt={`Car image ${index + 1}`}
+											className='w-full h-auto rounded-lg object-cover max-h-[500px]'
+										/>
+									</SwiperSlide>
+								))}
+							</Swiper>
+
+							{/* Превью */}
+							<Swiper
+								onSwiper={setThumbsSwiper}
+								spaceBetween={10}
+								slidesPerView={Math.min(uniquePhotos.length, 5)}
+								freeMode={true}
+								watchSlidesProgress={true}
+								className='cursor-pointer'
+							>
+								{uniquePhotos.map((photo, index) => (
+									<SwiperSlide key={index}>
+										<img
+											src={getPhotoUrl(photo.path)}
+											alt={`Thumbnail ${index + 1}`}
+											className='w-full h-[70px] object-cover rounded border transition border-gray-300 swiper-slide-thumb-active:border-blue-500'
+										/>
+									</SwiperSlide>
+								))}
+							</Swiper>
+						</div>
+					)}
 				</div>
-			)}
 
-			{/* Данные об автомобиле */}
-			<div className='mt-6 p-5 bg-gray-50 shadow-md rounded-lg'>
-				<p className='text-gray-600'>
-					<strong>Дата регистрации:</strong> {formattedYearMonth}
-				</p>
-				<p className='text-gray-600'>
-					<strong>Объём двигателя:</strong>{' '}
-					{car?.spec?.displacement.toLocaleString()} см³
-				</p>
-				<p className='text-gray-600'>
-					<strong>Пробег:</strong> {car?.spec?.mileage.toLocaleString()} км
-				</p>
-				<p className='text-gray-600'>
-					<strong>Трансмиссия:</strong>{' '}
-					{translations[car?.spec?.transmissionName]}
-				</p>
-				<p className='text-gray-600'>
-					<strong>Тип топлива:</strong> {translations[car?.spec?.fuelName]}
-				</p>
-				<p className='text-gray-600'>
-					<strong>Цвет:</strong> {colorTranslations[car?.spec?.colorName]}
-				</p>
-				<>
-					<CarInspection car={car} />
-				</>
+				{/* Данные об автомобиле */}
+				<motion.div
+					initial='hidden'
+					whileInView='visible'
+					variants={{
+						hidden: { opacity: 0, y: 30 },
+						visible: {
+							opacity: 1,
+							y: 0,
+							transition: {
+								staggerChildren: 0.15,
+								when: 'beforeChildren',
+							},
+						},
+					}}
+					viewport={{ once: true, amount: 0.2 }}
+					className='mt-6 p-6 bg-gradient-to-br from-gray-50 to-gray-100 shadow-xl rounded-xl md:mt-0 md:w-1/2 border border-gray-300'
+				>
+					<h2 className='text-2xl font-bold text-gray-900 mb-6 border-b pb-2 border-gray-300'>
+						Характеристики автомобиля
+					</h2>
+					<div className='grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-800 text-sm'>
+						{[
+							['Дата регистрации', formattedYearMonth],
+							[
+								'Объём двигателя',
+								`${car?.spec?.displacement.toLocaleString()} см³`,
+							],
+							['Пробег', `${car?.spec?.mileage.toLocaleString()} км`],
+							['Трансмиссия', translations[car?.spec?.transmissionName]],
+							['Тип топлива', translations[car?.spec?.fuelName]],
+							['Цвет', colorTranslations[car?.spec?.colorName]],
+						].map(([label, value], idx) => (
+							<motion.div
+								key={idx}
+								variants={{
+									hidden: { opacity: 0, y: 20 },
+									visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+								}}
+								className='flex items-start gap-2'
+							>
+								<div className='mt-1 w-2 h-2 bg-blue-500 rounded-full'></div>
+								<p>
+									<span className='font-medium'>{label}:</span> {value}
+								</p>
+							</motion.div>
+						))}
+					</div>
 
-				<p className='mt-10 mb-2'>
-					<span>Текущие курсы:</span>
-					<br />
-					<span className='text-gray-500 text-sm'>
-						&nbsp; USDT - KRW: ₩{Math.floor(usdKrwRate - 15).toLocaleString()}
-					</span>
-					<br />
-					<span className='text-gray-500 text-sm'>
-						&nbsp; USDT - RUB: {meanUsdtRubRate.toFixed(2)} ₽
-					</span>
-				</p>
-				<p className='text-gray-800 font-bold text-lg'>
-					<strong>
-						Цена в Корее: <br />
-					</strong>{' '}
-					₩{carPriceKorea.toLocaleString()} | ${carPriceUsd.toLocaleString()} |{' '}
-					{Math.round(carPriceRub).toLocaleString()} ₽
-				</p>
+					<div className='mt-6 border-t pt-4 border-gray-300'>
+						<motion.h3
+							variants={{
+								hidden: { opacity: 0, y: 20 },
+								visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+							}}
+							className='text-md font-semibold text-gray-900 mb-1'
+						>
+							Текущие курсы
+						</motion.h3>
+						<motion.p
+							variants={{
+								hidden: { opacity: 0, y: 20 },
+								visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+							}}
+							className='text-sm text-gray-600'
+						>
+							USDT - KRW:{' '}
+							<span className='font-medium'>
+								₩{Math.floor(usdKrwRate - 15).toLocaleString()}
+							</span>
+						</motion.p>
+						<motion.p
+							variants={{
+								hidden: { opacity: 0, y: 20 },
+								visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+							}}
+							className='text-sm text-gray-600'
+						>
+							USDT - RUB:{' '}
+							<span className='font-medium'>
+								{meanUsdtRubRate.toFixed(2)} ₽
+							</span>
+						</motion.p>
+					</div>
+
+					<motion.div
+						initial='hidden'
+						whileInView='visible'
+						variants={{
+							hidden: { opacity: 0, y: 30 },
+							visible: {
+								opacity: 1,
+								y: 0,
+								transition: {
+									staggerChildren: 0.15,
+									when: 'beforeChildren',
+								},
+							},
+						}}
+						viewport={{ once: true, amount: 0.2 }}
+						className='mt-6 border-t pt-4 border-gray-300'
+					>
+						<motion.h3
+							variants={{
+								hidden: { opacity: 0, y: 20 },
+								visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+							}}
+							className='text-md font-semibold text-gray-900 mb-1'
+						>
+							Цена в Корее
+						</motion.h3>
+						<motion.p
+							variants={{
+								hidden: { opacity: 0, y: 20 },
+								visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+							}}
+							className='text-gray-800 font-bold text-lg'
+						>
+							₩{carPriceKorea.toLocaleString()} | $
+							{carPriceUsd.toLocaleString()} |{' '}
+							{Math.round(carPriceRub).toLocaleString()} ₽
+						</motion.p>
+					</motion.div>
+				</motion.div>
+			</div>
+
+			<div>
+				<CarInspection car={car} />
 			</div>
 
 			{/* Контакты менеджеров */}
