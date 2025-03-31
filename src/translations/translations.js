@@ -15,6 +15,10 @@ export function translateSmartly(text) {
 }
 
 const translations = {
+	프리미에르: 'Premier',
+	쉐도우: 'Shadow',
+	시프터: 'Speedo',
+	인스파이어: 'Inspire',
 	보호차: 'Защищённый',
 	어린이: 'Детский',
 	투어러: 'Touro',
@@ -898,7 +902,7 @@ const translations = {
 	플래티넘Ⅲ: 'Platinum III',
 	마제스티S: 'Majesty S',
 	VIP팩: 'VIP Pack',
-	인승: 'Кол-во сидячих мест',
+	인승: '-местный',
 	CVT: 'Вариатор',
 	LPG: 'Газ',
 	CNG: 'Метан',
