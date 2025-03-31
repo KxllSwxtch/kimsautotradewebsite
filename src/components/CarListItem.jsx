@@ -38,7 +38,7 @@ const CarListItem = ({ car }) => {
 	const formattedCarName = translateCarName(car?.name) || car?.name
 
 	return (
-		<div className='relative bg-avtoVitaBlack rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl duration-300 border border-gray-700/50'>
+		<div className='relative bg-avtoVitaBlack rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl duration-300 border border-gray-700/50 '>
 			{/* Блок изображения */}
 			<Link
 				to={`/car/${carId}`}

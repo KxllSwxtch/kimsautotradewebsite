@@ -3,7 +3,7 @@ import carModelsTranslation from './carModels'
 import carTrimsTranslation from './carTrims'
 import carDetailedModelsTranslation from './carDetailedModels'
 import translations from './translations'
-import { translateValue } from './translateValue'
+import { translateSmartly } from './translations'
 
 export {
 	carBrandsTranslation,
@@ -11,5 +11,5 @@ export {
 	carTrimsTranslation,
 	carDetailedModelsTranslation,
 	translations,
-	translateValue,
+	translateSmartly,
 }

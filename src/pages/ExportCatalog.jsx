@@ -1,17 +1,17 @@
 import axios from 'axios'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { formatDate, transformBadgeValue } from '../utils'
 import { CarCard, Loader } from '../components'
-import {
-	carBrandsTranslation,
-	carModelsTranslation,
-	carTrimsTranslation,
-	translateValue,
-	translations,
-} from '../translations'
+import { translations, translateSmartly } from '../translations'
 
 const ExportCatalog = () => {
-	const [loading, setLoading] = useState(true)
+	const filtersReady = useRef(false)
+
+	const [sortOption, setSortOption] = useState('newest')
+
+	const [selectedRegion, setSelectedRegion] = useState('')
+
+	const [loading, setLoading] = useState(false)
 	const [searchByNumber, setSearchByNumber] = useState('')
 
 	const [currentPage, setCurrentPage] = useState(1)
@@ -51,6 +51,88 @@ const ExportCatalog = () => {
 	const [badgeDetails, setBadgeDetails] = useState(null)
 	const [selectedBadgeDetails, setSelectedBadgeDetails] = useState('')
 
+	const sortOptions = {
+		newest: '|ModifiedDate',
+		priceAsc: '|PriceAsc',
+		priceDesc: '|PriceDesc',
+		mileageAsc: '|MileageAsc',
+		mileageDesc: '|MileageDesc',
+		yearDesc: '|Year',
+	}
+
+	useEffect(() => {
+		const savedFiltersRaw = localStorage.getItem('exportCatalogFilters')
+		if (!savedFiltersRaw) {
+			filtersReady.current = true
+			return
+		}
+
+		try {
+			const savedFilters = JSON.parse(savedFiltersRaw)
+
+			setSelectedManufacturer(savedFilters.selectedManufacturer || '')
+			setSelectedModelGroup(savedFilters.selectedModelGroup || '')
+			setSelectedModel(savedFilters.selectedModel || '')
+			setSelectedConfiguration(savedFilters.selectedConfiguration || '')
+			setSelectedBadge(savedFilters.selectedBadge || '')
+			setSelectedBadgeDetails(savedFilters.selectedBadgeDetails || '')
+			setStartYear(savedFilters.startYear || '')
+			setStartMonth(savedFilters.startMonth || '00')
+			setEndYear(savedFilters.endYear || '')
+			setEndMonth(savedFilters.endMonth || '00')
+			setMileageStart(savedFilters.mileageStart || '')
+			setMileageEnd(savedFilters.mileageEnd || '')
+			setPriceStart(savedFilters.priceStart || '')
+			setPriceEnd(savedFilters.priceEnd || '')
+			setSearchByNumber(savedFilters.searchByNumber || '')
+
+			// Устанавливаем timeout, чтобы дождаться всех setState
+			setTimeout(() => {
+				filtersReady.current = true
+			}, 0)
+		} catch (e) {
+			console.error('Ошибка при чтении фильтров из localStorage', e)
+			filtersReady.current = true
+		}
+	}, [])
+
+	useEffect(() => {
+		const filters = {
+			selectedManufacturer,
+			selectedModelGroup,
+			selectedModel,
+			selectedConfiguration,
+			selectedBadge,
+			selectedBadgeDetails,
+			startYear,
+			startMonth,
+			endYear,
+			endMonth,
+			mileageStart,
+			mileageEnd,
+			priceStart,
+			priceEnd,
+			searchByNumber,
+		}
+		localStorage.setItem('exportCatalogFilters', JSON.stringify(filters))
+	}, [
+		selectedManufacturer,
+		selectedModelGroup,
+		selectedModel,
+		selectedConfiguration,
+		selectedBadge,
+		selectedBadgeDetails,
+		startYear,
+		startMonth,
+		endYear,
+		endMonth,
+		mileageStart,
+		mileageEnd,
+		priceStart,
+		priceEnd,
+		searchByNumber,
+	])
+
 	// Загружаем курс USD
 	useEffect(() => {
 		const fetchUsdKrwRate = async () => {
@@ -74,6 +156,12 @@ const ExportCatalog = () => {
 
 		fetchUsdKrwRate()
 	}, [])
+
+	useEffect(() => {
+		if (filtersReady.current) {
+			fetchCars()
+		}
+	}, [filtersReady.current])
 
 	// Загружаем список производителей
 	useEffect(() => {
@@ -136,7 +224,7 @@ const ExportCatalog = () => {
 			if (!selectedModelGroup) return
 			setCurrentPage(1)
 
-			const url = `https://api.encar.com/search/car/list/general?count=true&count=true&q=(And.Hidden.N._.SellType.%EC%9D%BC%EB%B0%98._.(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.ModelGroup.${selectedModelGroup}.)))&inav=%7CMetadata%7CSort`
+			const url = `https://api.encar.com/search/car/list/general?count=true&q=(And.Hidden.N._.SellType.%EC%9D%BC%EB%B0%98._.(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.ModelGroup.${selectedModelGroup}.)))&inav=%7CMetadata%7CSort`
 			const response = await axios.get(url)
 
 			const data = response?.data
@@ -169,7 +257,7 @@ const ExportCatalog = () => {
 			if (!selectedModel) return
 			setCurrentPage(1)
 
-			const url = `https://api.encar.com/search/car/list/general?count=true&count=true&q=(And.Hidden.N._.(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.Model.${selectedModel}.))))&inav=%7CMetadata%7CSort`
+			const url = `https://api.encar.com/search/car/list/general?count=true&q=(And.Hidden.N._.(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.Model.${selectedModel}.))))&inav=%7CMetadata%7CSort`
 
 			const response = await axios.get(url)
 
@@ -267,6 +355,8 @@ const ExportCatalog = () => {
 			const url = `https://api.encar.com/search/car/list/general?count=true&q=(And.Hidden.N._.SellType.%EC%9D%BC%EB%B0%98._.(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.(C.Model.${selectedModel}._.(C.BadgeGroup.${selectedConfiguration}._.Badge.${transformBadgeValue(
 				selectedBadge,
 			)}.))))))&inav=%7CMetadata%7CSort`
+
+			console.log(url)
 
 			try {
 				const response = await axios.get(url)
@@ -411,7 +501,7 @@ const ExportCatalog = () => {
 		const offset = (currentPage - 1) * itemsPerPage
 
 		// const url = `https://api-encar.habsidev.com/api/catalog?count=true&q=${encodedQuery}&sr=|ModifiedDate|${offset}|${itemsPerPage}`
-		const url = `https://encar-proxy.onrender.com/api/catalog?q=${encodedQuery}&sr=|ModifiedDate|${offset}|${itemsPerPage}`
+		const url = `https://encar-proxy.onrender.com/api/catalog?q=${encodedQuery}&sr=${sortOptions[sortOption]}|${offset}|${itemsPerPage}`
 
 		console.log('Generated q=', query)
 
@@ -426,14 +516,16 @@ const ExportCatalog = () => {
 	}
 
 	useEffect(() => {
-		fetchCars()
+		if (filtersReady.current) {
+			fetchCars()
+		}
 	}, [
 		selectedManufacturer,
 		selectedModelGroup,
 		selectedModel,
+		selectedConfiguration,
 		selectedBadge,
 		selectedBadgeDetails,
-		selectedConfiguration,
 		startYear,
 		startMonth,
 		endYear,
@@ -442,8 +534,9 @@ const ExportCatalog = () => {
 		mileageEnd,
 		priceStart,
 		priceEnd,
-		currentPage,
 		searchByNumber,
+		currentPage,
+		sortOption,
 	])
 
 	useEffect(() => {
@@ -465,11 +558,50 @@ const ExportCatalog = () => {
 		}
 	}, [selectedModelGroup])
 
+	useEffect(() => {
+		if (!selectedModel) {
+			setSelectedConfiguration('')
+			setSelectedBadge('')
+			setSelectedBadgeDetails('')
+		}
+	}, [selectedModel])
+
+	useEffect(() => {
+		if (!selectedConfiguration) {
+			setSelectedBadge('')
+			setSelectedBadgeDetails('')
+		}
+	}, [selectedConfiguration])
+
+	useEffect(() => {
+		if (!selectedBadge) {
+			setSelectedBadgeDetails('')
+		}
+	}, [selectedBadge])
+
 	return (
 		<div className='md:mt-40 mt-35 px-6'>
 			<h1 className='text-3xl font-bold text-center mb-5'>
 				Каталог автомобилей
 			</h1>
+			<div className='md:flex flex-col items-end md:mr-20 md:block hidden'>
+				<label htmlFor='sortOptions'>Сортировать по</label>
+				<select
+					className='border border-gray-300 rounded-md px-4 py-2 shadow-sm'
+					value={sortOption}
+					onChange={(e) => {
+						setSortOption(e.target.value)
+						setCurrentPage(1)
+					}}
+				>
+					<option value='newest'>Сначала новые</option>
+					<option value='priceAsc'>Цена: по возрастанию</option>
+					<option value='priceDesc'>Цена: по убыванию</option>
+					<option value='mileageAsc'>Пробег: по возрастанию</option>
+					<option value='mileageDesc'>Пробег: по убыванию</option>
+					<option value='yearDesc'>Год: от новых</option>
+				</select>
+			</div>
 			<div className='container m-auto grid grid-cols-1 md:grid-cols-5 md:gap-15'>
 				<div className='md:col-span-1.5'>
 					<select
@@ -482,9 +614,8 @@ const ExportCatalog = () => {
 							?.filter((manufacturer) => manufacturer.Count > 0)
 							.map((manufacturer, index) => (
 								<option key={index} value={manufacturer.Value}>
-									{carBrandsTranslation[manufacturer.Value] ||
-										manufacturer.Value}{' '}
-									({manufacturer.Count} автомобилей)
+									{translateSmartly(manufacturer.Value)} ({manufacturer.Count}{' '}
+									автомобилей)
 								</option>
 							))}
 					</select>
@@ -499,13 +630,13 @@ const ExportCatalog = () => {
 							?.filter((modelGroup) => modelGroup.Count > 0)
 							.map((modelGroup, index) => (
 								<option key={index} value={modelGroup.Value}>
-									{carModelsTranslation[modelGroup.Value] || modelGroup.Value} (
-									{modelGroup.Count} автомобилей)
+									{translateSmartly(modelGroup.Value)} ({modelGroup.Count}{' '}
+									автомобилей)
 								</option>
 							))}
 					</select>
 					<select
-						disabled={!selectedModelGroup}
+						disabled={selectedModelGroup.length === 0}
 						className='w-full border border-gray-300 rounded-md px-3 py-2 mt-4 disabled:bg-gray-200'
 						value={selectedModel}
 						onChange={(e) => setSelectedModel(e.target.value)}
@@ -515,15 +646,17 @@ const ExportCatalog = () => {
 							?.filter((model) => model.Count > 0)
 							.map((model, index) => (
 								<option key={index} value={model.Value}>
-									{carTrimsTranslation[model.Value] || model.Value} (
-									{formatDate(model?.Metadata?.ModelStartDate[0])} -{' '}
+									{translations[model.Value] ||
+										translateSmartly(model.Value) ||
+										model.Value}{' '}
+									({formatDate(model?.Metadata?.ModelStartDate[0])} -{' '}
 									{formatDate(model?.Metadata?.ModelEndDate[0])}) ({model.Count}{' '}
 									автомобилей )
 								</option>
 							))}
 					</select>
 					<select
-						disabled={!selectedModel}
+						disabled={selectedModel.length === 0}
 						className='w-full border border-gray-300 rounded-md px-3 py-2 mt-4 disabled:bg-gray-200'
 						value={selectedConfiguration}
 						onChange={(e) => setSelectedConfiguration(e.target.value)}
@@ -533,14 +666,13 @@ const ExportCatalog = () => {
 							?.filter((configuration) => configuration.Count > 0)
 							.map((configuration, index) => (
 								<option key={index} value={configuration.Value}>
-									{carTrimsTranslation[configuration.Value] ||
-										configuration.Value}{' '}
-									({configuration.Count})
+									{translateSmartly(configuration.Value)} ({configuration.Count}
+									)
 								</option>
 							))}
 					</select>
 					<select
-						disabled={!selectedConfiguration}
+						disabled={selectedConfiguration.length === 0}
 						className='w-full border border-gray-300 rounded-md px-3 py-2 mt-4 disabled:bg-gray-200'
 						value={selectedBadge}
 						onChange={(e) => setSelectedBadge(e.target.value)}
@@ -550,13 +682,13 @@ const ExportCatalog = () => {
 							?.filter((badge) => badge.Count > 0)
 							.map((badge, index) => (
 								<option key={index} value={badge.Value}>
-									{translateValue(badge.Value)} ({badge.Count})
+									{translateSmartly(badge.Value)} ({badge.Count})
 								</option>
 							))}
 					</select>
 
 					<select
-						disabled={!selectedBadge}
+						disabled={selectedBadge.length === 0}
 						className='w-full border border-gray-300 rounded-md px-3 py-2 mt-4 disabled:bg-gray-200'
 						value={selectedBadgeDetails}
 						onChange={(e) => setSelectedBadgeDetails(e.target.value)}
@@ -566,7 +698,7 @@ const ExportCatalog = () => {
 							?.filter((badgeDetails) => badgeDetails.Count > 0)
 							.map((badgeDetail, index) => (
 								<option key={index} value={badgeDetail.Value}>
-									{translateValue(badgeDetail.Value)} ({badgeDetail.Count})
+									{translateSmartly(badgeDetail.Value)} ({badgeDetail.Count})
 								</option>
 							))}
 					</select>
@@ -755,6 +887,30 @@ const ExportCatalog = () => {
 						</select>
 					</div>
 
+					{/* <select
+						className='w-full border border-gray-300 rounded-md px-3 py-2 mt-4'
+						value={selectedRegion}
+						onChange={(e) => setSelectedRegion(e.target.value)}
+					>
+						<option value=''>Регион</option>
+						<option value='서울'>Сеул (서울)</option>
+						<option value='경기'>Кёнгидо (경기)</option>
+						<option value='인천'>Инчхон (인천)</option>
+						<option value='대전'>Тэджон (대전)</option>
+						<option value='세종'>Сэджон (대전)</option>
+						<option value='충남'>Ханнам (충남)</option>
+						<option value='충북'>Чунбук (충북)</option>
+						<option value='강원'>Канвондо (강원)</option>
+						<option value='부산'>Пусан (부산)</option>
+						<option value='울산'>Ульсан (울산)</option>
+						<option value='경남'>Кённам (경남)</option>
+						<option value='경북'>Кёнбук (경북)</option>
+						<option value='광주'>Кванджу (광주)</option>
+						<option value='전남'>Чоннам (전남)</option>
+						<option value='전북'>Чонбук (전북)</option>
+						<option value='제주'>Чеджу (제주)</option>
+					</select> */}
+
 					<input
 						type='text'
 						placeholder='Поиск по номеру авто (например, 49서0290)'
@@ -795,17 +951,37 @@ const ExportCatalog = () => {
 					<Loader />
 				) : cars.length > 0 ? (
 					<div className='md:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8'>
+						<div className='w-full md:hidden'>
+							<label htmlFor='sortOptions' className='mb-2 block text-center'>
+								Сортировать по
+							</label>
+							<select
+								className='border border-gray-300 rounded-md px-4 py-2 shadow-sm w-full'
+								value={sortOption}
+								onChange={(e) => {
+									setSortOption(e.target.value)
+									setCurrentPage(1)
+								}}
+							>
+								<option value='newest'>Сначала новые</option>
+								<option value='priceAsc'>Цена: по возрастанию</option>
+								<option value='priceDesc'>Цена: по убыванию</option>
+								<option value='mileageAsc'>Пробег: по возрастанию</option>
+								<option value='mileageDesc'>Пробег: по убыванию</option>
+								<option value='yearDesc'>Год: от новых</option>
+							</select>
+						</div>
 						{cars.map((car) => (
 							<CarCard key={car.Id} car={car} usdKrwRate={usdKrwRate} />
 						))}
 					</div>
 				) : (
-					<h1 className='text-lg font-bold text-center mt-5 md:mt-0 col-span-3'>
+					<h1 className='text-xl font-bold text-center mt-5 md:mt-0 col-span-3 mb-10'>
 						Автомобили не найдены
 					</h1>
 				)}
 			</div>
-			{totalCars > 20 && (
+			{cars.length > 0 && totalCars > 20 && (
 				<div className='flex justify-center mt-10 mb-10'>
 					<div className='flex flex-wrap justify-center items-center gap-2 px-4 max-w-full'>
 						{currentPage > 1 && (
