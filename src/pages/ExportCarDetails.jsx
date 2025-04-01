@@ -486,6 +486,23 @@ const ExportCarDetails = () => {
 				<CarInspection car={car} />
 			</div>
 
+			{/* Инспекционный отчёт Encar */}
+			{carId && (
+				<div className='mt-10'>
+					<h2 className='text-2xl font-bold mb-4 text-center'>
+						Инспекционный отчёт
+					</h2>
+					<div className='w-full h-300 md:h-200 aspect-[16/9] rounded-lg overflow-hidden shadow-lg border border-gray-300'>
+						<iframe
+							src={`https://fem.encar.com/cars/report/inspect/${carId}`}
+							title='Encar Report'
+							className='w-full h-full'
+							allowFullScreen
+						/>
+					</div>
+				</div>
+			)}
+
 			{/* Контакты менеджеров */}
 			<div className='mt-6 p-5 bg-white shadow-md rounded-lg text-center flex justify-center gap-10 md:gap-20 flex-col md:flex-row'>
 				<div>
