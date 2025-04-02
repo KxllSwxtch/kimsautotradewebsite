@@ -45,6 +45,8 @@ const translations = {
 	세금미납: 'Задолженность по налогам',
 	없음: 'Отсутствует',
 	제시번호: 'Номер предложения',
+	보험사보증: 'Гарантия страховой компании',
+	양호: 'Хорошее состояние',
 }
 
 const colorTranslations = {
@@ -67,7 +69,18 @@ const colorTranslations = {
 	쥐색: 'Тёмно-серый',
 }
 
+const formatDate = (rawDate) => {
+	if (!rawDate || rawDate.length !== 8) return rawDate
+	const year = rawDate.slice(0, 4)
+	const month = rawDate.slice(4, 6)
+	const day = rawDate.slice(6, 8)
+	return `${day}.${month}.${year}`
+}
+
 const ExportCarDetails = () => {
+	const [vehicleId, setVehicleId] = useState(null)
+	const [inspectionData, setInspectionData] = useState(null)
+
 	const [calculatedResultKZ, setCalculatedResultKZ] = useState(null)
 	const [thumbsSwiper, setThumbsSwiper] = useState(null)
 
@@ -96,6 +109,7 @@ const ExportCarDetails = () => {
 				)
 
 				setCar(response.data)
+				setVehicleId(response.data?.vehicleId)
 			} catch (err) {
 				setError('Ошибка при загрузке данных')
 				console.error(err)
@@ -106,6 +120,21 @@ const ExportCarDetails = () => {
 
 		if (carId) fetchCar()
 	}, [carId])
+
+	useEffect(() => {
+		const fetchInspectionData = async () => {
+			try {
+				const response = await axios.get(
+					`https://api.encar.com/v1/readside/inspection/vehicle/${vehicleId}`,
+				)
+				setInspectionData(response.data)
+			} catch (error) {
+				console.error('Ошибка при загрузке отчёта осмотра:', error)
+			}
+		}
+
+		if (carId) fetchInspectionData()
+	}, [carId, vehicleId])
 
 	useEffect(() => {
 		const fetchUsdKrwRate = async () => {
@@ -487,7 +516,7 @@ const ExportCarDetails = () => {
 			</div>
 
 			{/* Инспекционный отчёт Encar */}
-			{carId && (
+			{/* {carId && (
 				<div className='mt-10'>
 					<h2 className='text-2xl font-bold mb-4 text-center'>
 						Инспекционный отчёт
@@ -501,6 +530,124 @@ const ExportCarDetails = () => {
 						/>
 					</div>
 				</div>
+			)} */}
+
+			{inspectionData && (
+				<motion.div
+					initial='hidden'
+					whileInView='visible'
+					variants={{
+						hidden: { opacity: 0, y: 40 },
+						visible: {
+							opacity: 1,
+							y: 0,
+							transition: {
+								staggerChildren: 0.15,
+								when: 'beforeChildren',
+							},
+						},
+					}}
+					viewport={{ once: true, amount: 0.2 }}
+					className='mt-10'
+				>
+					<h2 className='text-3xl font-bold mb-6 text-center text-gray-800'>
+						🔍 Диагностика автомобиля
+					</h2>
+					<div className='bg-white p-6 rounded-xl shadow-lg border border-gray-200'>
+						<div className='grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-800'>
+							{[
+								['VIN', inspectionData?.master?.detail?.vin],
+								[
+									'Пробег',
+									`${inspectionData?.master?.detail?.mileage.toLocaleString()} км`,
+								],
+								[
+									'Дата 1-й регистрации',
+									formatDate(
+										inspectionData?.master?.detail?.firstRegistrationDate,
+									),
+								],
+								[
+									'Тип коробки передач',
+									translations[
+										inspectionData?.master?.detail?.transmissionType?.title
+									] || inspectionData?.master?.detail?.transmissionType?.title,
+								],
+								[
+									'Гарантийное покрытие',
+									translations[
+										inspectionData?.master?.detail?.guarantyType?.title
+									] || inspectionData?.master?.detail?.guarantyType?.title,
+								],
+								[
+									'Состояние автомобиля',
+									translations[
+										inspectionData?.master?.detail?.carStateType?.title
+									] || inspectionData?.master?.detail?.carStateType?.title,
+								],
+								[
+									'Проверка двигателя',
+									inspectionData?.master?.detail?.engineCheck === 'Y'
+										? 'Пройдена'
+										: 'Нет',
+								],
+								[
+									'Проверка коробки передач',
+									inspectionData?.master?.detail?.trnsCheck === 'Y'
+										? 'Пройдена'
+										: 'Нет',
+								],
+								[
+									'Участие в ДТП',
+									inspectionData?.master?.accdient ? 'Да' : 'Нет',
+								],
+								[
+									'Тюнинг',
+									inspectionData?.master?.detail?.tuning ? 'Да' : 'Нет',
+								],
+								['Ремонт', inspectionData?.master?.simpleRepair ? 'Да' : 'Нет'],
+								[
+									'Наличие отзывов',
+									inspectionData?.master?.detail?.recall ? 'Да' : 'Нет',
+								],
+								['Модельный год', inspectionData?.master?.detail?.modelYear],
+								[
+									'Дата отчёта',
+									formatDate(inspectionData?.master?.detail?.issueDate),
+								],
+								['Модель двигателя', inspectionData?.master?.detail?.motorType],
+								['Версия отчёта', inspectionData?.master?.detail?.version],
+							].map(([label, value], idx) => (
+								<motion.div
+									key={idx}
+									variants={{
+										hidden: { opacity: 0, y: 20 },
+										visible: {
+											opacity: 1,
+											y: 0,
+											transition: { duration: 0.4 },
+										},
+									}}
+									className='flex items-start gap-2'
+								>
+									<div className='mt-1 w-2 h-2 bg-blue-500 rounded-full'></div>
+									<p>
+										<span className='font-medium'>{label}:</span> {value}
+									</p>
+								</motion.div>
+							))}
+						</div>
+
+						<a
+							href={`https://fem.encar.com/cars/report/inspect/${vehicleId}`}
+							target='_blank'
+							rel='noopener noreferrer'
+							className='mt-8 inline-block bg-black text-white text-sm px-6 py-3 rounded-md hover:bg-gray-800 transition duration-300 text-center'
+						>
+							Посмотреть полный технический отчёт
+						</a>
+					</div>
+				</motion.div>
 			)}
 
 			{/* Контакты менеджеров */}

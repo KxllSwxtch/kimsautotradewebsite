@@ -168,7 +168,14 @@ const CarInspection = ({ car }) => {
 							>
 								<div className='grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700'>
 									<p>
-										<span className='font-black'>Дата ДТП:</span> {acc.date}
+										<span className='font-black'>
+											Дата ДТП{' '}
+											<span className='text-xs font-light'>
+												(Год.Месяц.День)
+											</span>
+											:
+										</span>{' '}
+										{acc.date?.replaceAll('-', '.')}
 									</p>
 									<p>
 										<span className='font-medium'>Страховая выплата:</span> ₩
