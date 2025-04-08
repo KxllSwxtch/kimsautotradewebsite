@@ -8,6 +8,8 @@ import translateCarName from './translateCarName'
 import brandLogos from './brandLogos'
 import formatDate from './formatDate'
 import transformBadgeValue from './transformBadgeValue'
+import encodeKoreanForApi from './encodeKoreanForApi'
+import formatModelName from './formatModelName'
 
 export {
 	priceOptions,
@@ -20,4 +22,6 @@ export {
 	brandLogos,
 	formatDate,
 	transformBadgeValue,
+	encodeKoreanForApi,
+	formatModelName,
 }
