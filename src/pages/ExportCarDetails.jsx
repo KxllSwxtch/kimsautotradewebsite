@@ -84,7 +84,7 @@ const ExportCarDetails = () => {
 	const [calculatedResultKZ, setCalculatedResultKZ] = useState(null)
 	const [thumbsSwiper, setThumbsSwiper] = useState(null)
 
-	const [usdKrwRate, setUsdKrwRate] = useState(null)
+	const [usdKrwRate, setUsdKrwRate] = useState(1420)
 	const [usdRubRate, setUsdRubRate] = useState(null)
 	const [usdKztRate, setUsdKztRate] = useState(null)
 	const [usdEurRate, setUsdEurRate] = useState(null)
@@ -165,51 +165,26 @@ const ExportCarDetails = () => {
 
 	useEffect(() => {
 		const fetchUsdtRubRates = async () => {
-			const url = `https://corsproxy.io/?url=https://www.bestchange.ru/action.php?lang=ru`
-
 			try {
-				// Создаем FormData для запроса
-				const formData = new URLSearchParams({
-					action: 'getrates',
-					page: 'rates',
-					from: '91',
-					to: '10',
-					city: '1',
-					type: '',
-					give: '',
-					get: '',
-					commission: '0',
-					light: '0',
-					sort: 'from',
-					range: 'asc',
-					sortm: '0',
-					tsid: '0',
-				})
+				const response = await axios.get(
+					'https://api.coinbase.com/v2/prices/USDT-RUB/spot',
+				)
 
-				// Отправляем POST-запрос
-				const response = await axios.post(url, formData, {
-					headers: {
-						'Content-Type': 'application/x-www-form-urlencoded',
-					},
-				})
+				if (response.data && response.data.data && response.data.data.amount) {
+					// Получаем курс из ответа API
+					const rate = parseFloat(response.data.data.amount)
 
-				// Загружаем HTML в cheerio
-				const $ = cheerio.load(response.data)
+					// Форматируем до двух знаков после запятой
+					const formattedRate = parseFloat(rate.toFixed(2))
 
-				// Парсим таблицу
-				const parsedData = []
-				$('tbody tr').each((index, element) => {
-					const row = $(element)
-					const fsText = row.find('td.bi div.fs').text().trim() // Получаем текст из <div class="fs">
-					const formattedFsText = parseFloat(fsText.split(' ')[0])
+					// Добавляем 5% к курсу
+					const rateWithFivePercent = formattedRate + formattedRate * 0.05
 
-					if (fsText) parsedData.push(formattedFsText)
-				})
-
-				// Сохраняем в состояние
-				setUsdtRubRates(parsedData)
+					// Сохраняем в состояние
+					setUsdtRubRates([rateWithFivePercent])
+				}
 			} catch (error) {
-				console.error('Ошибка при получении данных:', error)
+				console.error('Ошибка при получении курса USDT-RUB:', error)
 			}
 		}
 
@@ -267,8 +242,7 @@ const ExportCarDetails = () => {
 			const totalWithLogisticsRub = formattedTotal + logisticsCostRub
 			const totalCarWithLogisticsRub = formattedTotal2 + logisticsCostRub
 			const totalCarWithLogisticsUsd = totalCarWithLogisticsRub / usdRubRate
-			const totalCarWithLogisticsUsdt =
-				totalCarWithLogisticsRub / meanUsdtRubRate
+			const totalCarWithLogisticsUsdt = totalCarWithLogisticsRub / usdtRubRates
 
 			setCalculatedResult({
 				...data,
@@ -326,9 +300,6 @@ const ExportCarDetails = () => {
 		(car?.advertisement?.price * 10000) / usdKrwRate,
 	)
 	const carPriceRub = carPriceUsd * usdRubRate
-
-	const meanUsdtRubRate =
-		usdtRubRates?.reduce((a, b) => a + b, 0) / usdtRubRates?.length + 2
 
 	return (
 		<div className='container mx-auto mt-30 p-6 bg-white shadow-lg rounded-lg'>
@@ -452,9 +423,7 @@ const ExportCarDetails = () => {
 							className='text-sm text-gray-600'
 						>
 							USDT - KRW:{' '}
-							<span className='font-medium'>
-								₩{Math.floor(usdKrwRate - 15).toLocaleString()}
-							</span>
+							<span className='font-medium'>₩{(1420).toLocaleString()}</span>
 						</motion.p>
 						<motion.p
 							variants={{
@@ -463,10 +432,8 @@ const ExportCarDetails = () => {
 							}}
 							className='text-sm text-gray-600'
 						>
-							USDT - RUB:{' '}
-							<span className='font-medium'>
-								{meanUsdtRubRate.toFixed(2)} ₽
-							</span>
+							USDT - RUB: <span className='font-medium'>{usdtRubRates} ₽</span>{' '}
+							(Уточняйте у +82 10-8029-6232 - Рамис)
 						</motion.p>
 					</div>
 
