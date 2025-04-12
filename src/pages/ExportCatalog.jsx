@@ -51,6 +51,8 @@ const ExportCatalog = () => {
 	const [badgeDetails, setBadgeDetails] = useState(null)
 	const [selectedBadgeDetails, setSelectedBadgeDetails] = useState('')
 
+	const [error, setError] = useState('')
+
 	const sortOptions = {
 		newest: '|ModifiedDate',
 		priceAsc: '|PriceAsc',
@@ -507,11 +509,28 @@ const ExportCatalog = () => {
 
 		try {
 			const response = await axios.get(url)
+
+			// Проверка на наличие ошибки в ответе
+			if (response.data && response.data.error) {
+				console.error('Получен ответ с ошибкой:', response.data.error)
+				setError(
+					'На сайте ведутся технические работы. Пожалуйста, попробуйте позже.',
+				)
+				setCars([])
+				setLoading(false)
+				return
+			}
+
 			setCars(response.data?.SearchResults || [])
 			setLoading(false)
 			window.scrollTo({ top: 0, behavior: 'smooth' })
 		} catch (error) {
 			console.error('Ошибка при загрузке автомобилей:', error)
+			setError(
+				'На сайте ведутся технические работы. Пожалуйста, попробуйте позже.',
+			)
+			setCars([])
+			setLoading(false)
 		}
 	}
 
@@ -948,7 +967,9 @@ const ExportCatalog = () => {
 				</div>
 
 				{loading ? (
-					<Loader />
+					<div className='flex justify-center items-center h-screen'>
+						<Loader />
+					</div>
 				) : cars.length > 0 ? (
 					<div className='md:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8'>
 						<div className='w-full md:hidden'>
@@ -976,9 +997,11 @@ const ExportCatalog = () => {
 						))}
 					</div>
 				) : (
-					<h1 className='text-xl font-bold text-center mt-5 md:mt-0 col-span-3 mb-10'>
-						Автомобили не найдены
-					</h1>
+					<div className='flex justify-center items-center h-32'>
+						<p className='text-xl font-semibold text-gray-700'>
+							{error || 'Автомобили не найдены'}
+						</p>
+					</div>
 				)}
 			</div>
 			{cars.length > 0 && totalCars > 20 && (

@@ -84,11 +84,12 @@ const ExportCarDetails = () => {
 	const [calculatedResultKZ, setCalculatedResultKZ] = useState(null)
 	const [thumbsSwiper, setThumbsSwiper] = useState(null)
 
-	const [usdKrwRate, setUsdKrwRate] = useState(1420)
+	const [usdKrwRate, setUsdKrwRate] = useState(null)
 	const [usdRubRate, setUsdRubRate] = useState(null)
 	const [usdKztRate, setUsdKztRate] = useState(null)
 	const [usdEurRate, setUsdEurRate] = useState(null)
 	const [usdtRubRates, setUsdtRubRates] = useState(null)
+	const [usdtKrwRate, setUsdtKrwRate] = useState(null)
 
 	const [car, setCar] = useState(null)
 	const [loading, setLoading] = useState(true)
@@ -189,6 +190,32 @@ const ExportCarDetails = () => {
 		}
 
 		fetchUsdtRubRates()
+	}, [])
+
+	useEffect(() => {
+		const fetchUsdtKrwRate = async () => {
+			try {
+				const response = await axios.get(
+					'https://api.bithumb.com/v1/ticker?markets=KRW-USDT',
+				)
+
+				if (response.data && response.data[0] && response.data[0].trade_price) {
+					// Получаем курс из ответа API и вычитаем 80 пунктов
+					const rawRate = parseFloat(response.data[0].trade_price)
+					const adjustedRate = rawRate - 40
+
+					// Форматируем до целого числа
+					const formattedRate = Math.round(adjustedRate)
+
+					// Сохраняем в состояние
+					setUsdtKrwRate(formattedRate)
+				}
+			} catch (error) {
+				console.error('Ошибка при получении курса USDT-KRW:', error)
+			}
+		}
+
+		fetchUsdtKrwRate()
 	}, [])
 
 	// Расчёт под ключ до РФ
@@ -413,7 +440,7 @@ const ExportCarDetails = () => {
 							}}
 							className='text-md font-semibold text-gray-900 mb-1'
 						>
-							Текущие курсы
+							Текущие курсы (Уточняйте у +82 10-8029-6232 - Рамис)
 						</motion.h3>
 						<motion.p
 							variants={{
@@ -423,7 +450,9 @@ const ExportCarDetails = () => {
 							className='text-sm text-gray-600'
 						>
 							USDT - KRW:{' '}
-							<span className='font-medium'>₩{(1420).toLocaleString()}</span>
+							<span className='font-medium'>
+								₩{usdtKrwRate ? usdtKrwRate.toLocaleString() : '--'}
+							</span>
 						</motion.p>
 						<motion.p
 							variants={{
@@ -433,7 +462,6 @@ const ExportCarDetails = () => {
 							className='text-sm text-gray-600'
 						>
 							USDT - RUB: <span className='font-medium'>{usdtRubRates} ₽</span>{' '}
-							(Уточняйте у +82 10-8029-6232 - Рамис)
 						</motion.p>
 					</div>
 

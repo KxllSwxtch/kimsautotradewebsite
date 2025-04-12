@@ -51,6 +51,8 @@ const ExportCatalog = () => {
 	const [badgeDetails, setBadgeDetails] = useState(null)
 	const [selectedBadgeDetails, setSelectedBadgeDetails] = useState('')
 
+	const [error, setError] = useState('')
+
 	const sortOptions = {
 		newest: '|ModifiedDate',
 		priceAsc: '|PriceAsc',
@@ -554,6 +556,18 @@ const ExportCatalog = () => {
 
 		try {
 			const response = await axios.get(url)
+
+			// Проверка на наличие ошибки в ответе
+			if (response.data && response.data.error) {
+				console.error('Получен ответ с ошибкой:', response.data.error)
+				setError(
+					'На сайте ведутся технические работы. Пожалуйста, попробуйте позже.',
+				)
+				setCars([])
+				setLoading(false)
+				return
+			}
+
 			// Если ответ пустой, обнуляем результат
 			if (response.data?.Count === 0) {
 				console.log('No results found for query')
@@ -566,6 +580,9 @@ const ExportCatalog = () => {
 		} catch (error) {
 			console.error('Ошибка при загрузке автомобилей:', error)
 			console.error('Error details:', error.response?.data || error.message)
+			setError(
+				'На сайте ведутся технические работы. Пожалуйста, попробуйте позже.',
+			)
 			setCars([])
 			setLoading(false)
 		}
@@ -1037,7 +1054,7 @@ const ExportCatalog = () => {
 					</div>
 				) : (
 					<h1 className='text-xl font-bold text-center mt-5 md:mt-0 col-span-3 mb-10'>
-						Автомобили не найдены
+						{error}
 					</h1>
 				)}
 			</div>
