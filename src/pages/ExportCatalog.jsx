@@ -503,9 +503,12 @@ const ExportCatalog = () => {
 		const offset = (currentPage - 1) * itemsPerPage
 
 		// const url = `https://api-encar.habsidev.com/api/catalog?count=true&q=${encodedQuery}&sr=|ModifiedDate|${offset}|${itemsPerPage}`
-		const url = `https://encar-proxy.onrender.com/api/catalog?q=${encodedQuery}&sr=${sortOptions[sortOption]}|${offset}|${itemsPerPage}`
+		const url = `https://api.encar.com/search/car/list/mobile?q=${encodedQuery}&sr=${encodeURIComponent(
+			sortOptions[sortOption],
+		)}%7C${offset}%7C${itemsPerPage}`
 
 		console.log('Generated q=', query)
+		console.log(url)
 
 		try {
 			const response = await axios.get(url)

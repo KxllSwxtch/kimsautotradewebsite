@@ -550,7 +550,9 @@ const ExportCatalog = () => {
 		const offset = (currentPage - 1) * itemsPerPage
 
 		// Формируем URL запроса
-		const url = `https://encar-proxy.onrender.com/api/catalog?q=${encodedQuery}&sr=${sortOptions[sortOption]}|${offset}|${itemsPerPage}`
+		const url = `https://encar-proxy.onrender.com/api/catalog?q=${encodedQuery}&sr=${encodeURIComponent(
+			sortOptions[sortOption],
+		)}%7C${offset}%7C${itemsPerPage}`
 
 		console.log('Generated q=', url)
 
