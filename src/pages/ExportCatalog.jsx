@@ -1,15 +1,21 @@
 import axios from 'axios'
 import { useState, useEffect, useRef } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { translations, translateSmartly } from '../translations'
 import { formatDate, transformBadgeValue } from '../utils'
 import { CarCard, Loader } from '../components'
-import { translations, translateSmartly } from '../translations'
 
-const ExportCatalog = () => {
+const Catalog = () => {
+	const location = useLocation()
+	const navigate = useNavigate()
 	const filtersReady = useRef(false)
+	const urlParams = useRef({
+		manufacturer: null,
+		modelGroup: null,
+		model: null,
+	})
 
 	const [sortOption, setSortOption] = useState('newest')
-
-	const [selectedRegion, setSelectedRegion] = useState('')
 
 	const [loading, setLoading] = useState(false)
 	const [searchByNumber, setSearchByNumber] = useState('')
@@ -63,6 +69,19 @@ const ExportCatalog = () => {
 	}
 
 	useEffect(() => {
+		const searchParams = new URLSearchParams(location.search)
+		urlParams.current = {
+			manufacturer: searchParams.get('manufacturer'),
+			modelGroup: searchParams.get('modelGroup'),
+			model: searchParams.get('model'),
+		}
+
+		if (urlParams.current.manufacturer) {
+			setSelectedManufacturer(urlParams.current.manufacturer)
+		}
+	}, [location.search])
+
+	useEffect(() => {
 		const savedFiltersRaw = localStorage.getItem('exportCatalogFilters')
 		if (!savedFiltersRaw) {
 			filtersReady.current = true
@@ -72,9 +91,11 @@ const ExportCatalog = () => {
 		try {
 			const savedFilters = JSON.parse(savedFiltersRaw)
 
-			setSelectedManufacturer(savedFilters.selectedManufacturer || '')
-			setSelectedModelGroup(savedFilters.selectedModelGroup || '')
-			setSelectedModel(savedFilters.selectedModel || '')
+			setSelectedManufacturer(
+				urlParams.current.manufacturer ||
+					savedFilters.selectedManufacturer ||
+					'',
+			)
 			setSelectedConfiguration(savedFilters.selectedConfiguration || '')
 			setSelectedBadge(savedFilters.selectedBadge || '')
 			setSelectedBadgeDetails(savedFilters.selectedBadgeDetails || '')
@@ -88,7 +109,6 @@ const ExportCatalog = () => {
 			setPriceEnd(savedFilters.priceEnd || '')
 			setSearchByNumber(savedFilters.searchByNumber || '')
 
-			// Устанавливаем timeout, чтобы дождаться всех setState
 			setTimeout(() => {
 				filtersReady.current = true
 			}, 0)
@@ -135,7 +155,6 @@ const ExportCatalog = () => {
 		searchByNumber,
 	])
 
-	// Загружаем курс USD
 	useEffect(() => {
 		const fetchUsdKrwRate = async () => {
 			try {
@@ -165,7 +184,6 @@ const ExportCatalog = () => {
 		}
 	}, [filtersReady.current])
 
-	// Загружаем список производителей
 	useEffect(() => {
 		const fetchManufacturers = async () => {
 			setCurrentPage(1)
@@ -178,7 +196,6 @@ const ExportCatalog = () => {
 
 			setTotalCars(count)
 
-			// data -> iNav -> Nodes[2] -> Nodes[2]?.Facets -> Nodes[2]?.Facets[0]?.Refinements?.Nodes[0]?.Facets
 			const manufacturers =
 				data?.iNav?.Nodes[2]?.Facets[0]?.Refinements?.Nodes[0]?.Facets
 
@@ -188,7 +205,6 @@ const ExportCatalog = () => {
 		fetchManufacturers()
 	}, [])
 
-	// Загружаем модели
 	useEffect(() => {
 		const fetchModelGroups = async () => {
 			if (!selectedManufacturer) return
@@ -197,30 +213,40 @@ const ExportCatalog = () => {
 
 			const url = `https://api.encar.com/search/car/list/general?count=true&q=(And.Hidden.N._.SellType.%EC%9D%BC%EB%B0%98._.(C.CarType.A._.Manufacturer.${selectedManufacturer}.))&inav=%7CMetadata%7CSort`
 
-			const response = await axios.get(url)
+			try {
+				const response = await axios.get(url)
+				const data = response?.data
+				const count = data?.Count
 
-			const data = response?.data
-			const count = data?.Count
+				setTotalCars(count)
 
-			setTotalCars(count)
+				const allManufacturers =
+					data?.iNav?.Nodes[2]?.Facets[0]?.Refinements?.Nodes[0]?.Facets
 
-			// data?.iNav?.Nodes[2]?.Facets[0]?.Refinements?.Nodes[0]?.Facets
-			const allManufacturers =
-				data?.iNav?.Nodes[2]?.Facets[0]?.Refinements?.Nodes[0]?.Facets
+				const filteredManufacturer = allManufacturers.filter(
+					(item) => item.IsSelected === true,
+				)[0]
 
-			const filteredManufacturer = allManufacturers.filter(
-				(item) => item.IsSelected === true,
-			)[0]
+				const models = filteredManufacturer?.Refinements?.Nodes[0]?.Facets
 
-			const models = filteredManufacturer?.Refinements?.Nodes[0]?.Facets
+				setModelGroups(models)
 
-			setModelGroups(models)
+				if (urlParams.current.modelGroup) {
+					const modelExists = models?.some(
+						(model) => model.Value === urlParams.current.modelGroup,
+					)
+					if (modelExists) {
+						setSelectedModelGroup(urlParams.current.modelGroup)
+					}
+				}
+			} catch (error) {
+				console.error('Ошибка при загрузке моделей:', error)
+			}
 		}
 
 		fetchModelGroups()
 	}, [selectedManufacturer])
 
-	// Загружаем поколения
 	useEffect(() => {
 		const fetchModelGroups = async () => {
 			if (!selectedModelGroup) return
@@ -248,12 +274,25 @@ const ExportCatalog = () => {
 			const models = filteredModel?.Refinements?.Nodes[0]?.Facets
 
 			setModels(models)
+
+			if (urlParams.current.model) {
+				const modelExists = models?.some(
+					(model) => model.Value === urlParams.current.model,
+				)
+				if (modelExists) {
+					setSelectedModel(urlParams.current.model)
+				}
+				urlParams.current = {
+					manufacturer: null,
+					modelGroup: null,
+					model: null,
+				}
+			}
 		}
 
 		fetchModelGroups()
 	}, [selectedManufacturer, selectedModelGroup])
 
-	// Загружаем конфигурации
 	useEffect(() => {
 		const fetchConfigurations = async () => {
 			if (!selectedModel) return
@@ -295,7 +334,6 @@ const ExportCatalog = () => {
 		fetchConfigurations()
 	}, [selectedManufacturer, selectedModelGroup, selectedModel])
 
-	// Загружаем объёмы
 	useEffect(() => {
 		if (!selectedConfiguration) return
 		setCurrentPage(1)
@@ -409,6 +447,7 @@ const ExportCatalog = () => {
 
 	const fetchCars = async () => {
 		setLoading(true)
+		setError('')
 
 		let queryParts = []
 		let filters = []
@@ -421,43 +460,49 @@ const ExportCatalog = () => {
 			queryParts.push('(And.Hidden.N._.SellType.일반._.')
 		}
 
-		if (
-			selectedManufacturer &&
-			selectedModelGroup &&
-			selectedModel &&
-			selectedConfiguration &&
-			selectedBadge &&
-			selectedBadgeDetails
-		) {
-			queryParts.push(
-				`(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.(C.Model.${selectedModel}._.(C.BadgeGroup.${selectedConfiguration}._.(C.Badge.${transformBadgeValue(
-					selectedBadge,
-				)}._.BadgeDetail.${selectedBadgeDetails}.))))))`,
-			)
-		} else if (
-			selectedManufacturer &&
-			selectedModelGroup &&
-			selectedModel &&
-			selectedConfiguration
-		) {
-			queryParts.push(
-				`(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.(C.Model.${selectedModel}._.BadgeGroup.${selectedConfiguration}.))))`,
-			)
-		} else if (selectedManufacturer && selectedModelGroup && selectedModel) {
-			queryParts.push(
-				`(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.Model.${selectedModel}.)))`,
-			)
-		} else if (selectedManufacturer && selectedModelGroup) {
-			queryParts.push(
-				`(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.ModelGroup.${selectedModelGroup}.))`,
-			)
-		} else if (selectedManufacturer) {
-			queryParts.push(`(C.CarType.A._.Manufacturer.${selectedManufacturer}.)`)
+		if (selectedManufacturer) {
+			if (
+				selectedModelGroup &&
+				selectedModel &&
+				selectedConfiguration &&
+				selectedBadge &&
+				selectedBadgeDetails
+			) {
+				queryParts.push(
+					`(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.(C.Model.${selectedModel}._.(C.BadgeGroup.${selectedConfiguration}._.(C.Badge.${transformBadgeValue(
+						selectedBadge,
+					)}._.BadgeDetail.${selectedBadgeDetails}.))))))`,
+				)
+			} else if (
+				selectedModelGroup &&
+				selectedModel &&
+				selectedConfiguration &&
+				selectedBadge
+			) {
+				queryParts.push(
+					`(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.(C.Model.${selectedModel}._.(C.BadgeGroup.${selectedConfiguration}._.Badge.${transformBadgeValue(
+						selectedBadge,
+					)}.)))))`,
+				)
+			} else if (selectedModelGroup && selectedModel && selectedConfiguration) {
+				queryParts.push(
+					`(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.(C.Model.${selectedModel}._.BadgeGroup.${selectedConfiguration}.))))`,
+				)
+			} else if (selectedModelGroup && selectedModel) {
+				queryParts.push(
+					`(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.Model.${selectedModel}.)))`,
+				)
+			} else if (selectedModelGroup) {
+				queryParts.push(
+					`(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.ModelGroup.${selectedModelGroup}.))`,
+				)
+			} else {
+				queryParts.push(`(C.CarType.A._.Manufacturer.${selectedManufacturer}.)`)
+			}
 		} else {
 			queryParts.push('CarType.A.')
 		}
 
-		// Пробег
 		if (mileageStart && mileageEnd) {
 			filters.push(`Mileage.range(${mileageStart}..${mileageEnd}).`)
 		} else if (mileageStart) {
@@ -466,14 +511,7 @@ const ExportCatalog = () => {
 			filters.push(`Mileage.range(..${mileageEnd}).`)
 		}
 
-		// Год
-		if (startYear && endYear) {
-			filters.push(`Year.range(${startYear}00..${endYear}99).`)
-		} else if (startYear) {
-			filters.push(`Year.range(${startYear}00..).`)
-		} else if (endYear) {
-			filters.push(`Year.range(..${endYear}99).`)
-		} else if (startYear && startMonth && endYear && endMonth) {
+		if (startYear && startMonth && endYear && endMonth) {
 			filters.push(
 				`Year.range(${startYear}${startMonth}..${endYear}${endMonth}).`,
 			)
@@ -481,9 +519,14 @@ const ExportCatalog = () => {
 			filters.push(`Year.range(${startYear}${startMonth}..).`)
 		} else if (endYear && endMonth) {
 			filters.push(`Year.range(..${endYear}${endMonth}).`)
+		} else if (startYear && endYear) {
+			filters.push(`Year.range(${startYear}00..${endYear}99).`)
+		} else if (startYear) {
+			filters.push(`Year.range(${startYear}00..).`)
+		} else if (endYear) {
+			filters.push(`Year.range(..${endYear}99).`)
 		}
 
-		// Цена
 		if (priceStart && priceEnd) {
 			filters.push(`Price.range(${priceStart}..${priceEnd}).`)
 		} else if (priceStart) {
@@ -492,7 +535,6 @@ const ExportCatalog = () => {
 			filters.push(`Price.range(..${priceEnd}).`)
 		}
 
-		// Финальный запрос
 		let query =
 			queryParts.join('') +
 			(filters.length ? `_.${filters.join('_.')}` : '') +
@@ -502,7 +544,6 @@ const ExportCatalog = () => {
 		const itemsPerPage = 20
 		const offset = (currentPage - 1) * itemsPerPage
 
-		// const url = `https://api-encar.habsidev.com/api/catalog?count=true&q=${encodedQuery}&sr=|ModifiedDate|${offset}|${itemsPerPage}`
 		const url = `https://encar-proxy.onrender.com/api/catalog?count=true&q=${encodedQuery}&sr=${encodeURIComponent(
 			sortOptions[sortOption],
 		)}%7C${offset}%7C${itemsPerPage}`
@@ -513,7 +554,6 @@ const ExportCatalog = () => {
 		try {
 			const response = await axios.get(url)
 
-			// Проверка на наличие ошибки в ответе
 			if (response.data && response.data.error) {
 				console.error('Получен ответ с ошибкой:', response.data.error)
 				setError(
@@ -601,6 +641,81 @@ const ExportCatalog = () => {
 		}
 	}, [selectedBadge])
 
+	const handleManufacturerChange = (e) => {
+		const value = e.target.value
+		setSelectedModelGroup('')
+		setSelectedModel('')
+		setSelectedConfiguration('')
+		setSelectedBadge('')
+		setSelectedBadgeDetails('')
+		setSelectedManufacturer(value)
+		setCurrentPage(1)
+
+		if (value) {
+			navigate(`/catalog?manufacturer=${value}`)
+		} else {
+			navigate('/catalog')
+		}
+	}
+
+	const handleModelGroupChange = (e) => {
+		const value = e.target.value
+		setSelectedModel('')
+		setSelectedConfiguration('')
+		setSelectedBadge('')
+		setSelectedBadgeDetails('')
+		setSelectedModelGroup(value)
+		setCurrentPage(1)
+
+		if (value) {
+			navigate(
+				`/catalog?manufacturer=${selectedManufacturer}&modelGroup=${value}`,
+			)
+		} else {
+			navigate(`/catalog?manufacturer=${selectedManufacturer}`)
+		}
+	}
+
+	const handleModelChange = (e) => {
+		const value = e.target.value
+		setSelectedConfiguration('')
+		setSelectedBadge('')
+		setSelectedBadgeDetails('')
+		setSelectedModel(value)
+		setCurrentPage(1)
+
+		if (value) {
+			navigate(
+				`/catalog?manufacturer=${selectedManufacturer}&modelGroup=${selectedModelGroup}&model=${value}`,
+			)
+		} else {
+			navigate(
+				`/catalog?manufacturer=${selectedManufacturer}&modelGroup=${selectedModelGroup}`,
+			)
+		}
+	}
+
+	const handleConfigurationChange = (e) => {
+		const value = e.target.value
+		setSelectedBadge('')
+		setSelectedBadgeDetails('')
+		setSelectedConfiguration(value)
+		setCurrentPage(1)
+	}
+
+	const handleBadgeChange = (e) => {
+		const value = e.target.value
+		setSelectedBadgeDetails('')
+		setSelectedBadge(value)
+		setCurrentPage(1)
+	}
+
+	const handleBadgeDetailsChange = (e) => {
+		const value = e.target.value
+		setSelectedBadgeDetails(value)
+		setCurrentPage(1)
+	}
+
 	return (
 		<div className='md:mt-40 mt-35 px-6'>
 			<h1 className='text-3xl font-bold text-center mb-5'>
@@ -629,7 +744,7 @@ const ExportCatalog = () => {
 					<select
 						className='w-full border border-gray-300 rounded-md px-3 py-2 mt-4'
 						value={selectedManufacturer}
-						onChange={(e) => setSelectedManufacturer(e.target.value)}
+						onChange={handleManufacturerChange}
 					>
 						<option value=''>Марка</option>
 						{manufacturers
@@ -645,7 +760,7 @@ const ExportCatalog = () => {
 						disabled={selectedManufacturer.length === 0}
 						className='w-full border border-gray-300 rounded-md px-3 py-2 mt-4 disabled:bg-gray-200'
 						value={selectedModelGroup}
-						onChange={(e) => setSelectedModelGroup(e.target.value)}
+						onChange={handleModelGroupChange}
 					>
 						<option value=''>Модель</option>
 						{modelGroups
@@ -661,7 +776,7 @@ const ExportCatalog = () => {
 						disabled={selectedModelGroup.length === 0}
 						className='w-full border border-gray-300 rounded-md px-3 py-2 mt-4 disabled:bg-gray-200'
 						value={selectedModel}
-						onChange={(e) => setSelectedModel(e.target.value)}
+						onChange={handleModelChange}
 					>
 						<option value=''>Поколение</option>
 						{models
@@ -681,7 +796,7 @@ const ExportCatalog = () => {
 						disabled={selectedModel.length === 0}
 						className='w-full border border-gray-300 rounded-md px-3 py-2 mt-4 disabled:bg-gray-200'
 						value={selectedConfiguration}
-						onChange={(e) => setSelectedConfiguration(e.target.value)}
+						onChange={handleConfigurationChange}
 					>
 						<option value=''>Конфигурация</option>
 						{configurations
@@ -697,7 +812,7 @@ const ExportCatalog = () => {
 						disabled={selectedConfiguration.length === 0}
 						className='w-full border border-gray-300 rounded-md px-3 py-2 mt-4 disabled:bg-gray-200'
 						value={selectedBadge}
-						onChange={(e) => setSelectedBadge(e.target.value)}
+						onChange={handleBadgeChange}
 					>
 						<option value=''>Выберите конфигурацию</option>
 						{badges
@@ -713,7 +828,7 @@ const ExportCatalog = () => {
 						disabled={selectedBadge.length === 0}
 						className='w-full border border-gray-300 rounded-md px-3 py-2 mt-4 disabled:bg-gray-200'
 						value={selectedBadgeDetails}
-						onChange={(e) => setSelectedBadgeDetails(e.target.value)}
+						onChange={handleBadgeDetailsChange}
 					>
 						<option value=''>Выберите комплектацию</option>
 						{badgeDetails
@@ -909,33 +1024,9 @@ const ExportCatalog = () => {
 						</select>
 					</div>
 
-					{/* <select
-						className='w-full border border-gray-300 rounded-md px-3 py-2 mt-4'
-						value={selectedRegion}
-						onChange={(e) => setSelectedRegion(e.target.value)}
-					>
-						<option value=''>Регион</option>
-						<option value='서울'>Сеул (서울)</option>
-						<option value='경기'>Кёнгидо (경기)</option>
-						<option value='인천'>Инчхон (인천)</option>
-						<option value='대전'>Тэджон (대전)</option>
-						<option value='세종'>Сэджон (대전)</option>
-						<option value='충남'>Ханнам (충남)</option>
-						<option value='충북'>Чунбук (충북)</option>
-						<option value='강원'>Канвондо (강원)</option>
-						<option value='부산'>Пусан (부산)</option>
-						<option value='울산'>Ульсан (울산)</option>
-						<option value='경남'>Кённам (경남)</option>
-						<option value='경북'>Кёнбук (경북)</option>
-						<option value='광주'>Кванджу (광주)</option>
-						<option value='전남'>Чоннам (전남)</option>
-						<option value='전북'>Чонбук (전북)</option>
-						<option value='제주'>Чеджу (제주)</option>
-					</select> */}
-
 					<input
 						type='text'
-						placeholder='Поиск по номеру авто (например, 49서0290)'
+						placeholder='Поиск по номеру авто (например, 49сер0290)'
 						className='w-full border border-gray-300 rounded-md px-3 py-2 mt-5'
 						value={searchByNumber}
 						onChange={(e) => {
@@ -963,6 +1054,7 @@ const ExportCatalog = () => {
 							setPriceEnd('')
 							setSearchByNumber('')
 							setCurrentPage(1)
+							navigate('/catalog')
 						}}
 					>
 						Сбросить фильтры
@@ -1053,4 +1145,4 @@ const ExportCatalog = () => {
 	)
 }
 
-export default ExportCatalog
+export default Catalog
