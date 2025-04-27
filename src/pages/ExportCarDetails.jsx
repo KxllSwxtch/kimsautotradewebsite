@@ -178,8 +178,8 @@ const ExportCarDetails = () => {
 					// Форматируем до двух знаков после запятой
 					const formattedRate = parseFloat(rate.toFixed(2))
 
-					// Добавляем 5% к курсу
-					const rateWithFivePercent = formattedRate + formattedRate * 0.05
+					// Добавляем 3.5% к курсу
+					const rateWithFivePercent = formattedRate + formattedRate * 0.035
 
 					// Сохраняем в состояние
 					setUsdtRubRates([rateWithFivePercent])
