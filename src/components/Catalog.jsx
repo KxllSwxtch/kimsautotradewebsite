@@ -364,18 +364,11 @@ const ExportCatalog = () => {
       if (!selectedBadge) return
       setCurrentPage(1)
 
-      // Log the values we're using to construct the URL
-      console.log("Selected Badge:", selectedBadge)
-      console.log("Encoded Badge:", encodeKoreanForApi(selectedBadge))
-
-      // Construct URL matching the exact structure of the working example
       const url = `https://encar-proxy.onrender.com/api/nav?count=true&q=(And.Hidden.N._.SellType.%EC%9D%BC%EB%B0%98._.(C.CarType.A._.(C.Manufacturer.${selectedManufacturer}._.(C.ModelGroup.${selectedModelGroup}._.(C.Model.${formatModelName(
         selectedModel
       )}._.(C.BadgeGroup.${selectedConfiguration}._.Badge.${encodeKoreanForApi(
         selectedBadge
       )}.))))))&inav=%7CMetadata%7CSort`
-
-      console.log("Fetching badge details with URL:", url)
 
       try {
         const response = await axios.get(url)
