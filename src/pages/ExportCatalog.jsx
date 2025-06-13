@@ -9,6 +9,7 @@ const Catalog = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const filtersReady = useRef(false)
+  const initialRenderDone = useRef(false)
   const urlParams = useRef({
     manufacturer: null,
     modelGroup: null,
@@ -179,8 +180,9 @@ const Catalog = () => {
   }, [])
 
   useEffect(() => {
-    if (filtersReady.current) {
+    if (filtersReady.current && !initialRenderDone.current) {
       fetchCars()
+      initialRenderDone.current = true
     }
   }, [filtersReady.current])
 
@@ -541,15 +543,12 @@ const Catalog = () => {
       ")"
 
     const encodedQuery = encodeURIComponent(query)
-    const itemsPerPage = 20
+    const itemsPerPage = 21
     const offset = (currentPage - 1) * itemsPerPage
 
     const url = `https://encar-proxy-main.onrender.com/api/catalog?count=true&q=${encodedQuery}&sr=${encodeURIComponent(
       sortOptions[sortOption]
     )}%7C${offset}%7C${itemsPerPage}`
-
-    console.log("Generated q=", query)
-    console.log(url)
 
     try {
       const response = await axios.get(url)
@@ -578,28 +577,10 @@ const Catalog = () => {
   }
 
   useEffect(() => {
-    if (filtersReady.current) {
+    if (initialRenderDone.current) {
       fetchCars()
     }
-  }, [
-    selectedManufacturer,
-    selectedModelGroup,
-    selectedModel,
-    selectedConfiguration,
-    selectedBadge,
-    selectedBadgeDetails,
-    startYear,
-    startMonth,
-    endYear,
-    endMonth,
-    mileageStart,
-    mileageEnd,
-    priceStart,
-    priceEnd,
-    searchByNumber,
-    currentPage,
-    sortOption,
-  ])
+  }, [currentPage, sortOption])
 
   useEffect(() => {
     if (!selectedManufacturer) {
@@ -716,8 +697,13 @@ const Catalog = () => {
     setCurrentPage(1)
   }
 
+  const handleApplyFilters = () => {
+    setCurrentPage(1)
+    fetchCars()
+  }
+
   return (
-    <div className="md:mt-40 mt-35 px-6">
+    <div className="md:mt-40 mt-35 px-4">
       <h1 className="text-3xl font-bold text-center mb-5">
         Каталог автомобилей
       </h1>
@@ -1036,7 +1022,14 @@ const Catalog = () => {
           />
 
           <button
-            className="w-full bg-red-500 text-white py-2 px-4 mt-5 rounded hover:bg-red-600 transition cursor-pointer"
+            className="w-full bg-blue-500 text-white py-2 px-4 mt-5 rounded hover:bg-blue-600 transition cursor-pointer"
+            onClick={handleApplyFilters}
+          >
+            Применить фильтры
+          </button>
+
+          <button
+            className="w-full bg-red-500 text-white py-2 px-4 mt-3 rounded hover:bg-red-600 transition cursor-pointer"
             onClick={() => {
               setSelectedManufacturer("")
               setSelectedModelGroup("")
@@ -1055,6 +1048,9 @@ const Catalog = () => {
               setSearchByNumber("")
               setCurrentPage(1)
               navigate("/catalog")
+              setTimeout(() => {
+                fetchCars()
+              }, 100)
             }}
           >
             Сбросить фильтры
@@ -1066,7 +1062,7 @@ const Catalog = () => {
             <Loader />
           </div>
         ) : cars.length > 0 ? (
-          <div className="md:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
+          <div className="md:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 mt-8">
             <div className="w-full md:hidden">
               <label htmlFor="sortOptions" className="mb-2 block text-center">
                 Сортировать по
