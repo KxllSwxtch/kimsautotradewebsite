@@ -88,8 +88,8 @@ const ExportCarDetails = () => {
 	const [usdRubRate, setUsdRubRate] = useState(null)
 	const [usdKztRate, setUsdKztRate] = useState(null)
 	const [usdEurRate, setUsdEurRate] = useState(null)
-	const [usdtRubRates, setUsdtRubRates] = useState(null)
-	const [usdtKrwRate, setUsdtKrwRate] = useState(null)
+	const [usdtRubRates, setUsdtRubRates] = useState(90.0) // Default value to prevent NaN
+	const [usdtKrwRate, setUsdtKrwRate] = useState(1430) // Default value to prevent NaN
 
 	const [car, setCar] = useState(null)
 	const [loading, setLoading] = useState(true)
@@ -152,7 +152,8 @@ const ExportCarDetails = () => {
 					const usdEurRate = jsonData['usd']['eur']
 
 					setUsdKrwRate(rate)
-					setUsdRubRate(usdRubRate)
+					// Добавляем 6 к USD-RUB курсу как в Python
+					setUsdRubRate(usdRubRate + 6)
 					setUsdKztRate(usdKztRate + 3)
 					setUsdEurRate(usdEurRate)
 				}
@@ -178,14 +179,16 @@ const ExportCarDetails = () => {
 					// Форматируем до двух знаков после запятой
 					const formattedRate = parseFloat(rate.toFixed(2))
 
-					// Добавляем 3.5% к курсу
-					const rateWithFivePercent = formattedRate + formattedRate * 0.035
+					// Добавляем 3.5% к курсу (как в Python)
+					const rateWithMargin = formattedRate + formattedRate * 0.035
 
 					// Сохраняем в состояние
-					setUsdtRubRates([rateWithFivePercent])
+					setUsdtRubRates(rateWithMargin)
 				}
 			} catch (error) {
 				console.error('Ошибка при получении курса USDT-RUB:', error)
+				// Fallback value как в Python
+				setUsdtRubRates(90.0)
 			}
 		}
 
@@ -200,7 +203,7 @@ const ExportCarDetails = () => {
 				)
 
 				if (response.data && response.data[0] && response.data[0].trade_price) {
-					// Получаем курс из ответа API и вычитаем 80 пунктов
+					// Получаем курс из ответа API и вычитаем 40 пунктов (как в Python)
 					const rawRate = parseFloat(response.data[0].trade_price)
 					const adjustedRate = rawRate - 40
 
@@ -209,9 +212,29 @@ const ExportCarDetails = () => {
 
 					// Сохраняем в состояние
 					setUsdtKrwRate(formattedRate)
+				} else {
+					// Fallback to Coinbase API как в Python
+					fetchUsdtKrwRateFallback()
 				}
 			} catch (error) {
-				console.error('Ошибка при получении курса USDT-KRW:', error)
+				console.error('Ошибка при получении курса USDT-KRW с Bithumb:', error)
+				// Fallback to Coinbase API как в Python
+				fetchUsdtKrwRateFallback()
+			}
+		}
+
+		const fetchUsdtKrwRateFallback = async () => {
+			try {
+				const response = await axios.get(
+					'https://api.coinbase.com/v2/exchange-rates?currency=USDT'
+				)
+				if (response.data && response.data.data && response.data.data.rates) {
+					const krwRate = parseFloat(response.data.data.rates.KRW)
+					// Добавляем 4 как в Python fallback
+					setUsdtKrwRate(Math.round(krwRate + 4))
+				}
+			} catch (error) {
+				console.error('Ошибка при получении курса USDT-KRW с Coinbase:', error)
 			}
 		}
 
@@ -223,13 +246,29 @@ const ExportCarDetails = () => {
 		setLoadingCalc(true)
 		setErrorCalc('')
 
-		// Логика расчёта логистики
-		let logisticsCostKrw = 2040000 // По умолчанию для всех санкционных авто
-		let logisticsCostUsd = logisticsCostKrw / usdKrwRate
-		let logisticsCostRub = logisticsCostUsd * usdRubRate
+		// Ensure exchange rates are loaded
+		if (!usdtKrwRate || !usdtRubRates || !usdKrwRate) {
+			console.log('Waiting for exchange rates to load...')
+			setErrorCalc('Загрузка курсов валют...')
+			setLoadingCalc(false)
+			return
+		}
 
-		if (car?.spec?.displacement > 2000)
-			logisticsCostUsd = logisticsCostUsd + 200
+		// Логика расчёта как в Python (excise = 2040000)
+		const excise = 2040000 // Фиксированные расходы по Корее (паром, автовоз, документы)
+		const priceKrw = car?.advertisement?.price * 10000
+		
+		// Расчеты по Корее
+		let totalKoreaCostsKrw = priceKrw + excise
+		
+		// Добавляем $200 USD если объем двигателя > 2000cc
+		if (car?.spec?.displacement > 2000) {
+			totalKoreaCostsKrw = totalKoreaCostsKrw + (200 * usdKrwRate)
+		}
+		
+		// Конвертируем в USDT
+		const totalKoreaCostsUsdt = totalKoreaCostsKrw / (usdtKrwRate || 1430)
+		const totalKoreaCostsRub = totalKoreaCostsUsdt * (usdtRubRates || 90.0)
 
 		try {
 			const response = await axios.post(
@@ -244,7 +283,7 @@ const ExportCarDetails = () => {
 					power: 1,
 					power_unit: 1,
 					value: car?.spec?.displacement,
-					price: car?.advertisement?.price * 10000,
+					price: priceKrw,
 					curr: 'KRW',
 				}).toString(),
 				{
@@ -259,27 +298,93 @@ const ExportCarDetails = () => {
 
 			const data = await response.data
 
-			const formattedTotal = parseInt(
-				data.total.split(',')[0].split(' ').join(''),
-			)
-			const formattedTotal2 = parseInt(
-				data.total2.split(',')[0].split(' ').join(''),
-			)
+			// Debug: log the API response to understand the format
+			console.log('Calcus.ru API response:', data)
 
-			const totalWithLogisticsRub = formattedTotal + logisticsCostRub
-			const totalCarWithLogisticsRub = formattedTotal2 + logisticsCostRub
-			const totalCarWithLogisticsUsd = totalCarWithLogisticsRub / usdRubRate
-			const totalCarWithLogisticsUsdt = totalCarWithLogisticsRub / usdtRubRates
+			// Парсим результаты от calcus.ru
+			const cleanNumber = (str) => {
+				if (!str) return 0
+				
+				// If it's already a number, return it
+				if (typeof str === 'number') return Math.round(str)
+				
+				// Convert to string
+				let cleaned = str.toString()
+				
+				// Log original value for debugging
+				console.log('Cleaning value:', cleaned)
+				
+				// Check if it contains 'руб' or similar
+				if (cleaned.includes('руб')) {
+					// Extract number before 'руб'
+					cleaned = cleaned.split('руб')[0]
+				}
+				
+				// Remove all non-numeric except dots, commas, and spaces
+				cleaned = cleaned.replace(/[^\d.,\s]/g, '')
+				// Remove spaces (Russian thousands separator)
+				cleaned = cleaned.replace(/\s/g, '')
+				// Replace comma with dot for decimal
+				cleaned = cleaned.replace(',', '.')
+				// Parse and round
+				const result = Math.round(parseFloat(cleaned) || 0)
+				
+				// Validation: customs shouldn't be more than 10 million rubles for normal cars
+				if (result > 10000000) {
+					console.warn(`Warning: parsed value ${result} seems too high for input: ${str}`)
+					// Try alternative parsing - maybe it's in kopecks?
+					const alternative = result / 100
+					if (alternative < 10000000) {
+						console.log(`Using alternative value: ${alternative} (divided by 100)`)
+						return Math.round(alternative)
+					}
+				}
+				
+				return result
+			}
+
+			const customsDuty = cleanNumber(data.tax) // Таможенная пошлина
+			const customsFee = cleanNumber(data.sbor) // Таможенный сбор
+			const recyclingFee = cleanNumber(data.util) // Утилизационный сбор
+			
+			console.log('Parsed customs values:', {
+				customsDuty,
+				customsFee,
+				recyclingFee,
+				total: customsDuty + customsFee + recyclingFee
+			})
+
+			// Расходы по России как в Python
+			const brokerFee = 100000 // Услуги брокера
+			const carrierFee = 250000 // Автовоз
+			
+			const totalRussiaCosts = customsDuty + customsFee + recyclingFee + brokerFee + carrierFee
+			const totalRussiaCostsUsdt = totalRussiaCosts / (usdtRubRates || 90.0)
+
+			// Итоговые расчеты
+			const totalCostRub = totalKoreaCostsRub + totalRussiaCosts
+			const totalCostUsdt = totalKoreaCostsUsdt + totalRussiaCostsUsdt
+			const totalCostUsdtRub = totalCostUsdt * (usdtRubRates || 90.0)
 
 			setCalculatedResult({
 				...data,
-				logisticsCostRub,
-				logisticsCostKrw,
-				logisticsCostUsd,
-				totalWithLogisticsRub,
-				totalCarWithLogisticsRub,
-				totalCarWithLogisticsUsd,
-				totalCarWithLogisticsUsdt,
+				// Korea costs
+				excise,
+				totalKoreaCostsKrw,
+				totalKoreaCostsUsdt,
+				totalKoreaCostsRub,
+				// Russia costs
+				customsDuty,
+				customsFee,
+				recyclingFee,
+				brokerFee,
+				carrierFee,
+				totalRussiaCosts,
+				totalRussiaCostsUsdt,
+				// Total
+				totalCostRub,
+				totalCostUsdt,
+				totalCostUsdtRub,
 			})
 		} catch (err) {
 			setErrorCalc(err.message)
@@ -790,52 +895,45 @@ const ExportCarDetails = () => {
 			{calculatedResult && selectedCountry === 'russia' && (
 				<div className='mt-6 p-5 bg-gray-50 shadow-md rounded-lg text-center'>
 					<h2 className='text-xl font-semibold mb-4'>Расчёт для России</h2>
+					
+					<h3 className='font-bold text-lg mt-4 mb-2'>Корея:</h3>
 					<p className='text-gray-600'>
-						Стоимость автомобиля: ₩{carPriceKorea.toLocaleString()} | $
-						{carPriceUsd.toLocaleString()} |{' '}
-						{Math.round(carPriceRub).toLocaleString()} ₽
-					</p>
-					<br />
-					<p className='text-gray-600'>
-						Расходы по Корее: ₩
-						{calculatedResult?.logisticsCostKrw.toLocaleString()} | $
-						{calculatedResult?.logisticsCostUsd.toLocaleString()} |{' '}
-						{calculatedResult?.logisticsCostRub.toLocaleString()} ₽
-					</p>
-					<br />
-					<br />
-					<h3 className='font-bold text-xl'>Расходы во Владивостоке</h3>
-					<p className='text-gray-600'>
-						Таможенная пошлина: {calculatedResult?.tax?.toLocaleString()} ₽
+						Стоимость автомобиля: ₩{carPriceKorea.toLocaleString()}
 					</p>
 					<p className='text-gray-600'>
-						Таможенный сбор: {calculatedResult?.sbor?.toLocaleString()} ₽
+						Расходы по Корее (паром, автовоз, документы): ₩{calculatedResult?.excise?.toLocaleString()}
+					</p>
+					<p className='text-gray-600 font-medium'>
+						Итого: ₩{calculatedResult?.totalKoreaCostsKrw?.toLocaleString()} | 
+						${isFinite(calculatedResult?.totalKoreaCostsUsdt) ? Math.round(calculatedResult?.totalKoreaCostsUsdt).toLocaleString() : '---'} USDT
+						(курс: 1 USDT = {usdtKrwRate?.toLocaleString()} ₩) | 
+						{isFinite(calculatedResult?.totalKoreaCostsRub) ? Math.round(calculatedResult?.totalKoreaCostsRub).toLocaleString() : '---'} ₽
+					</p>
+					
+					<h3 className='font-bold text-lg mt-4 mb-2'>Расходы по России:</h3>
+					<p className='text-gray-600'>
+						Таможенные платежи: {Math.round(calculatedResult?.customsDuty + calculatedResult?.customsFee + calculatedResult?.recyclingFee).toLocaleString()} ₽
 					</p>
 					<p className='text-gray-600'>
-						Утилизационный сбор: {calculatedResult?.util?.toLocaleString()} ₽
+						Услуги Брокера: {calculatedResult?.brokerFee?.toLocaleString()} ₽ (если клиент оплачивает таможенные платежи)
 					</p>
-					{/* <p className='text-gray-600'>
-						Итого (таможенные платежи во Владивостоке):{' '}
-						{calculatedResult?.total?.toLocaleString()} ₽
-					</p> */}
-					<p className='text-black font-medium text-lg mx-auto mt-10'>
-						Стоимость автомобиля под ключ во Владивостоке: <br />$
-						{Math.round(
-							calculatedResult?.totalCarWithLogisticsUsd,
-							2,
-						).toLocaleString('en-US')}{' '}
-						|{' '}
-						{calculatedResult?.totalCarWithLogisticsRub?.toLocaleString(
-							'ru-RU',
-						)}{' '}
-						₽
+					<p className='text-gray-600'>
+						Автовоз: {calculatedResult?.carrierFee?.toLocaleString()} ₽ (в зависимости от региона и вида автовоза, фуры)
 					</p>
-					<p className='text-black font-medium text-lg mx-auto mt-10'>
-						Стоимость автомобиля под ключ во Владивостоке (USDT): <br />$
-						{Math.round(
-							calculatedResult?.totalCarWithLogisticsUsdt,
-						).toLocaleString('en-US')}{' '}
+					<p className='text-gray-600 font-medium'>
+						Итого: {calculatedResult?.totalRussiaCosts?.toLocaleString()} ₽
 					</p>
+					
+					<div className='mt-6 pt-4 border-t border-gray-300'>
+						<p className='text-black font-bold text-xl'>
+							Итого стоимость автомобиля под ключ (USDT):
+							<br />(курс: 1 USDT = {usdtRubRates?.toFixed(2)} ₽)
+						</p>
+						<p className='text-2xl font-bold text-blue-600 mt-2'>
+							${isFinite(calculatedResult?.totalCostUsdt) ? Math.round(calculatedResult?.totalCostUsdt).toLocaleString('en-US') : '---'} | 
+							{isFinite(calculatedResult?.totalCostUsdtRub) ? Math.round(calculatedResult?.totalCostUsdtRub).toLocaleString('ru-RU') : '---'} ₽
+						</p>
+					</div>
 				</div>
 			)}
 

@@ -137,8 +137,12 @@ const KazakhstanCalculator = ({ usdKztRate, usdKrwRate, carPriceKRW }) => {
 	const formatNumber = (num) => Math.round(num).toLocaleString('ru-RU')
 
 	const calculateCosts = () => {
-		if (!price || !selectedVolume || !selectedYear) return
+		if (!carPriceKRW || !usdKztRate || !usdKrwRate) return
 
+		// Get USDT-KRW rate (need to get this from parent or calculate)
+		const usdtKrwRate = usdKrwRate // Temporary - should be passed from parent
+
+		// Korea costs (matching Python logic)
 		const koreaContainerUSD = 1900
 		const koreaContainerKZT = koreaContainerUSD * usdKztRate
 
@@ -148,57 +152,77 @@ const KazakhstanCalculator = ({ usdKztRate, usdKrwRate, carPriceKRW }) => {
 		const koreaDocumentationUSD = 150000 / usdKrwRate
 		const koreaDocumentationKZT = koreaDocumentationUSD * usdKztRate
 
-		const priceKZT = price * usdKztRate
+		const totalKoreaKZT = koreaContainerKZT + koreaTransferKZT + koreaDocumentationKZT
 
-		const customs = priceKZT * 0.15
-		const excise = selectedVolume >= 3000 ? selectedVolume * 100 : 0
-		const vat = (priceKZT + 20000 + excise) * 0.12
+		// Convert car price to KZT
+		const carPriceKZT = carPriceKRW * (usdKztRate / usdKrwRate)
 
-		let utilFee = 0
-		if (selectedVolume >= 1001 && selectedVolume <= 2000) {
-			utilFee = 603750
-		} else if (selectedVolume >= 2001 && selectedVolume <= 3000) {
-			utilFee = 862500
-		} else {
-			utilFee = 1983750
+		// Customs calculations (matching Python)
+		const customsFeeKZT = carPriceKZT * 0.15 // 15% customs duty
+		
+		// Get engine volume from the car data (passed from parent)
+		const engineVolume = selectedVolume || 2000 // Default if not selected
+		
+		// Excise fee calculation (matching Python)
+		const exciseFeeKZT = engineVolume >= 3000 ? engineVolume * 100 : 0
+		
+		// VAT calculation (matching Python)
+		const vatKZT = (carPriceKZT + 20000 + exciseFeeKZT) * 0.12
+
+		// Utilization fee (matching Python brackets)
+		let utilizationFeeKZT = 0
+		if (engineVolume >= 1001 && engineVolume <= 2000) {
+			utilizationFeeKZT = 603750
+		} else if (engineVolume >= 2001 && engineVolume <= 3000) {
+			utilizationFeeKZT = 862500
+		} else if (engineVolume > 3000) {
+			utilizationFeeKZT = 1983750
 		}
 
+		// Registration fee based on car age (matching Python)
 		const currentYear = new Date().getFullYear()
-		const regFee =
-			currentYear - selectedYear > 3
-				? 1725000
-				: currentYear - selectedYear < 2
-				? 863
-				: 172500
+		const carYear = selectedYear || currentYear - 2 // Default to 2 years old
+		const carAge = currentYear - carYear
+		
+		let registrationFeeKZT = 0
+		if (carAge > 3) {
+			registrationFeeKZT = 1725000
+		} else if (carAge < 2) {
+			registrationFeeKZT = 863
+		} else {
+			registrationFeeKZT = 172500
+		}
 
-		const totalKoreaKZT =
-			koreaContainerKZT + koreaTransferKZT + koreaDocumentationKZT
-
-		const totalCustoms = customs + vat + excise
-		const totalExpenses = totalCustoms + utilFee + regFee
-
-		const carPriceUSD = carPriceKRW / usdKrwRate
-		const carPriceKZT = carPriceUSD * usdKztRate
-
-		const finalCostKZT = carPriceKZT + totalExpenses + totalKoreaKZT
+		// Total calculations
+		const totalCustomsKZT = customsFeeKZT + vatKZT + exciseFeeKZT
+		const totalExpensesKZT = totalCustomsKZT + utilizationFeeKZT + registrationFeeKZT
+		const finalCostKZT = carPriceKZT + totalExpensesKZT + totalKoreaKZT
 		const finalCostUSD = finalCostKZT / usdKztRate
+		
+		// Calculate USDT (matching Python formula)
+		const finalCostUSDT = finalCostKZT / (usdKztRate * usdtKrwRate / usdKrwRate)
 
 		setCalculation({
+			// Korea costs
 			koreaContainerKZT,
 			koreaTransferKZT,
 			koreaDocumentationKZT,
-			priceKZT,
-			customs,
-			vat,
-			excise,
-			utilFee,
-			regFee,
-			totalCustoms,
-			totalExpenses,
+			totalKoreaKZT,
+			// Car price
+			carPriceKRW,
+			carPriceKZT,
+			// Customs
+			customsFeeKZT,
+			vatKZT,
+			exciseFeeKZT,
+			utilizationFeeKZT,
+			registrationFeeKZT,
+			// Totals
+			totalCustomsKZT,
+			totalExpensesKZT,
 			finalCostKZT,
 			finalCostUSD,
-			carPriceKRW,
-			carPriceUSD,
+			finalCostUSDT,
 		})
 	}
 
