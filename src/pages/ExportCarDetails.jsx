@@ -778,7 +778,7 @@ const ExportCarDetails = () => {
 					<p className='text-gray-700'>
 						<a
 							target='_blank'
-							href='https://www.instagram.com/auto_korea_cheongju'
+							href='https://www.instagram.com/kims_auto_trade_official'
 							className='text-blue-600 hover:underline flex justify-center items-center'
 						>
 							<FaInstagram className='text-pink-600 text-xl mr-1' />
@@ -813,7 +813,7 @@ const ExportCarDetails = () => {
 					<p className='text-gray-700'>
 						<a
 							target='_blank'
-							href='https://www.instagram.com/ramis_auto_korea/'
+							href='https://www.instagram.com/kims_auto_trade_official'
 							className='text-blue-600 hover:underline flex justify-center items-center'
 						>
 							<FaInstagram className='text-pink-600 text-xl mr-1' />

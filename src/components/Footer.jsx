@@ -19,7 +19,7 @@ const Footer = () => {
             </p>
             <div className="flex justify-center md:justify-start gap-4 mt-4">
               <a
-                href="https://www.instagram.com/auto_korea_cheongju"
+                href="https://www.instagram.com/kims_auto_trade_official"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-2xl hover:text-accent-500 transition-colors duration-300"

@@ -116,7 +116,7 @@ const CarDetails = () => {
 									WhatsApp
 								</a>
 								<a
-									href='https://www.instagram.com/auto_korea_cheongju'
+									href='https://www.instagram.com/kims_auto_trade_official'
 									target='_blank'
 									rel='noopener noreferrer'
 									className='mt-2 flex items-center gap-1 text-pink-500 hover:text-pink-600 transition duration-300'
@@ -216,7 +216,7 @@ const CarDetails = () => {
 							WhatsApp
 						</a>
 						<a
-							href='https://www.instagram.com/auto_korea_cheongju'
+							href='https://www.instagram.com/kims_auto_trade_official'
 							target='_blank'
 							rel='noopener noreferrer'
 							className='mt-2 flex items-center gap-1 text-pink-500 hover:text-pink-600 transition duration-300'
